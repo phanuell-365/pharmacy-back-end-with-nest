@@ -1,12 +1,18 @@
 import { OrderStatuses } from '../enum';
-import { IsEnum, IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsUUID,
+} from 'class-validator';
 
 export class CreateOrderDto {
   @IsNotEmpty()
   @IsNumber()
   orderQuantity: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsEnum(OrderStatuses, {
     message: 'Status is not valid',
   })

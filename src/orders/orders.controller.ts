@@ -28,7 +28,10 @@ export class OrdersController {
   }
 
   @Get()
-  findAll(@Query('status') status: string) {
+  findAll(
+    @Query('status') status: string,
+    @Query('resource') resource: string,
+  ) {
     if (status === OrderStatuses.PENDING) {
       return this.ordersService.findPendingOrders();
     } else if (status === OrderStatuses.DELIVERED) {
@@ -37,6 +40,8 @@ export class OrdersController {
       return this.ordersService.findCancelledOrders();
     } else if (status === OrderStatuses.ACTIVE) {
       return this.ordersService.findActiveOrders();
+    } else if (resource && resource === 'status') {
+      return this.ordersService.findOrderStatus();
     } else {
       return this.ordersService.findAll();
     }

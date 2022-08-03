@@ -9,7 +9,7 @@ import { DRUG_REPOSITORY } from '../drugs/constants';
 import { Drug } from '../drugs/entities';
 import { SUPPLIER_REPOSITORY } from '../suppliers/constants';
 import { Supplier } from '../suppliers/entities';
-import { ORDER_REPOSITORY } from './constants';
+import { ORDER_REPOSITORY, ORDER_STATUSES } from './constants';
 import { Order } from './entities';
 import { Op } from 'sequelize';
 import { OrderStatuses } from './enum';
@@ -122,6 +122,10 @@ export class OrdersService {
     }
 
     return order;
+  }
+
+  findOrderStatus() {
+    return ORDER_STATUSES;
   }
 
   async findActiveOrders() {
