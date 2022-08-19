@@ -1,0 +1,56 @@
+import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { DoseForms } from '../enums';
+import { DOSE_FORMS, DRUG_STRENGTHS } from '../constants';
+
+@Table({
+  tableName: 'Drugs',
+})
+export class Drug extends Model {
+  @Column({
+    primaryKey: true,
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
+    allowNull: false,
+    unique: true,
+  })
+  id: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+    unique: true,
+  })
+  name: string;
+
+  @Column({
+    type: DataType.ENUM,
+    values: DOSE_FORMS,
+    allowNull: false,
+  })
+  doseForm: DoseForms;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+    validate: {
+      isValidStrength(value) {
+        if (!value.includes(DRUG_STRENGTHS)) {
+          throw new Error('Invalid strength');
+        }
+      },
+    },
+  })
+  strength: string;
+
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  levelOfUse: number;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  therapeuticClass: string;
+}
