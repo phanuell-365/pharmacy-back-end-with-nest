@@ -1,24 +1,49 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { AppModule } from './../src/app.module';
+import { AppModule } from '../src/app.module';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
+import * as pactum from 'pactum';
+import { CreateUserDto } from '../src/users/dto';
+import { Role } from '../src/users/enums';
 
-describe('AppController (e2e)', () => {
+describe('Pharmacy App e2e', function () {
   let app: INestApplication;
 
-  beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
+  beforeAll(async () => {
+    const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
-    app = moduleFixture.createNestApplication();
+    app = moduleRef.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+
     await app.init();
+    await app.listen(process.env.PORT);
+    pactum.request.setBaseUrl(`http://localhost:${process.env.PORT}`);
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+  afterAll(async () => {
+    await app.close();
   });
+
+  describe('User', function () {
+    const newUser: CreateUserDto = {
+      username: 'Jane Smith',
+      email: 'janesmith@localhost.com',
+      password: 'password_jane',
+      phone: '0712345678',
+      role: Role.PHARMACIST,
+    };
+
+    describe('Create', function () {
+      it('should return a new user', function () {
+        return pactum
+          .spec()
+          .post('/users')
+          .withBody({ ...newUser })
+          .expectStatus(201)
+          .inspect();
+      });
+    });
+  });
+  it.todo('should do something');
 });
