@@ -1,1 +1,1 @@
-export * from './is-value-containing';
+export * from './is-value-containing.decorator';

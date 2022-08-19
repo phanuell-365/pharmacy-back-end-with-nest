@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreateDrugDto } from './dto/create-drug.dto';
-import { UpdateDrugDto } from './dto/update-drug.dto';
+import { CreateDrugDto, UpdateDrugDto } from './dto';
 import { DRUG_REPOSITORY } from './constants';
 import { Drug } from './entities/drug.entity';
 
@@ -22,7 +21,10 @@ export class DrugsService {
     return await this.drugRepository.findByPk(id);
   }
 
-  async update(id: string, updateDrugDto: UpdateDrugDto) {
+  async update(
+    id: string,
+    updateDrugDto: UpdateDrugDto,
+  ): Promise<[affectedCount: number]> {
     return await this.drugRepository.update(
       { ...updateDrugDto },
       { where: { id } },
