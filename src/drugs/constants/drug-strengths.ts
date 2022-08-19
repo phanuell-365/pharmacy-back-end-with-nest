@@ -1,4 +1,4 @@
-export const drugStrengths = [
+export const DRUG_STRENGTHS = [
   'mg',
   'mL',
   'g',

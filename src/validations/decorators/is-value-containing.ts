@@ -5,7 +5,7 @@ import {
 } from 'class-validator';
 
 export function IsValueContaining(
-  property: string,
+  validValues: Array<string>,
   validationOptions?: ValidationOptions,
 ) {
   return function (object: object, propertyName: string) {
@@ -13,11 +13,17 @@ export function IsValueContaining(
       name: 'IsValueContaining',
       target: object.constructor,
       propertyName: propertyName,
-      constraints: [property],
+      constraints: [validValues],
       options: validationOptions,
       validator: {
         validate(value: any, args: ValidationArguments) {
-          const arrayValue = ;
+          const [validValuesArray] = args.constraints;
+          return value.includes(validValuesArray);
+        },
+        defaultMessage(validationArguments?: ValidationArguments): string {
+          return `${propertyName} must contain one of the following values: ${validValues.join(
+            ', ',
+          )}`;
         },
       },
     });
