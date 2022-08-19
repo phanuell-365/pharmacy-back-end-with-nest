@@ -27,16 +27,16 @@ export class DrugsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.drugsService.findOne(+id);
+    return this.drugsService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateDrugDto: UpdateDrugDto) {
-    return this.drugsService.update(+id, updateDrugDto);
+    return this.drugsService.update(id, updateDrugDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.drugsService.remove(+id);
+    return this.drugsService.remove(id);
   }
 }
