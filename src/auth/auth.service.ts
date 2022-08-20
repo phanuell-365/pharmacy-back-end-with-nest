@@ -5,6 +5,8 @@ import { AuthDto } from './dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { EXPIRES_IN } from './constants';
+import { CreateUserDto } from '../users/dto';
+import { Role } from '../users/enums';
 
 @Injectable()
 export class AuthService {
@@ -13,11 +15,41 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
+  async createDefaultAdmin() {
+    const user = await this.userRepository.findOne({
+      where: {
+        username: 'Administrator',
+      },
+    });
+
+    if (user) {
+      return;
+    }
+
+    const admin: CreateUserDto = {
+      username: 'Administrator',
+      email: 'administrator@localhost.com',
+      password: 'password_admin',
+      phone: '0712345678',
+      role: Role.ADMIN,
+    };
+
+    const salt = await bcrypt.genSalt(10);
+    admin.password = await bcrypt.hash(admin.password, salt);
+
+    await this.userRepository.create({
+      ...admin,
+    });
+  }
+
   async login(user: AuthDto): Promise<{
     access_token: string;
     expires_in: string;
     role: string;
   }> {
+    // create a default admin if there is none
+    await this.createDefaultAdmin();
+
     const userFound = await this.userRepository.findOne({
       where: {
         username: user.username,

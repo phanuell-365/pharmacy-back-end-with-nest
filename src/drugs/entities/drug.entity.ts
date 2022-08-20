@@ -34,7 +34,9 @@ export class Drug extends Model {
     allowNull: false,
     validate: {
       isValidStrength(value) {
-        if (!value.includes(DRUG_STRENGTHS)) {
+        if (!DRUG_STRENGTHS.some((strength) => value.includes(strength))) {
+          console.log('The value is', value);
+          console.log("does value include 'mg'", value.includes('mg'));
           throw new Error('Invalid strength');
         }
       },

@@ -18,7 +18,9 @@ export function IsValueContaining(
       validator: {
         validate(value: any, args: ValidationArguments) {
           const [validValuesArray] = args.constraints;
-          return value.includes(validValuesArray);
+          return validValuesArray.some((validValue) =>
+            value.includes(validValue),
+          );
         },
         defaultMessage(validationArguments?: ValidationArguments): string {
           return `${propertyName} must contain one of the following values: ${validValues.join(

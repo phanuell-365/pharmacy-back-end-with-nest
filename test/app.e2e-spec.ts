@@ -5,6 +5,8 @@ import * as pactum from 'pactum';
 import { CreateUserDto } from '../src/users/dto';
 import { Role } from '../src/users/enums';
 import { AuthDto } from '../src/auth/dto';
+import { CreateDrugDto } from '../src/drugs/dto';
+import { DoseForms } from '../src/drugs/enums';
 
 describe('Pharmacy App e2e', function () {
   let app: INestApplication;
@@ -26,30 +28,10 @@ describe('Pharmacy App e2e', function () {
     await app.close();
   });
 
-  describe('User', function () {
-    const newUser: CreateUserDto = {
-      username: 'Jane Smith',
-      email: 'janesmith@localhost.com',
-      password: 'password_jane',
-      phone: '0712345678',
-      role: Role.PHARMACIST,
-    };
-
-    describe('Create', function () {
-      it('should return a new user', function () {
-        return pactum
-          .spec()
-          .post('/users')
-          .withBody({ ...newUser })
-          .expectStatus(201);
-      });
-    });
-  });
-
   describe('Auth', function () {
     const authDto: AuthDto = {
-      username: 'Jane Smith',
-      password: 'password_jane',
+      username: 'Administrator',
+      password: 'password_admin',
     };
 
     describe('Login', function () {
@@ -65,15 +47,75 @@ describe('Pharmacy App e2e', function () {
     });
   });
 
-  describe('Get all Users', function () {
-    it('should return all users', function () {
-      return pactum
-        .spec()
-        .get('/users')
-        .withHeaders({
-          Authorization: 'Bearer $S{accessToken}',
-        })
-        .expectStatus(200);
+  describe('User', function () {
+    const newUser: CreateUserDto = {
+      username: 'Jane Smith',
+      email: 'janesmith@localhost.com',
+      password: 'password_jane',
+      phone: '0712345676',
+      role: Role.PHARMACIST,
+    };
+
+    describe('Create', function () {
+      it('should return a new user', function () {
+        return pactum
+          .spec()
+          .post('/users')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .withBody({ ...newUser })
+          .expectStatus(201);
+      });
+    });
+
+    describe('Get all users', function () {
+      it('should return all users', function () {
+        return pactum
+          .spec()
+          .get('/users')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(200);
+      });
+    });
+  });
+
+  describe('Drugs', function () {
+    const newDrug: CreateDrugDto = {
+      name: 'Paracetamol',
+      doseForm: DoseForms.TABLET,
+      strength: '500mg',
+      levelOfUse: 7,
+      therapeuticClass: 'Analgesic',
+    };
+
+    describe('Create', function () {
+      it('should create a new drug and return it', function () {
+        return pactum
+          .spec()
+          .post('/drugs')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .withBody({ ...newDrug })
+          .expectStatus(201)
+          .expectBodyContains(newDrug.name);
+      });
+    });
+
+    describe('Get all drugs', function () {
+      it('should return all the drugs', function () {
+        return pactum
+          .spec()
+          .get('/drugs')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(200)
+          .inspect();
+      });
     });
   });
 });
