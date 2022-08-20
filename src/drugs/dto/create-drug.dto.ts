@@ -16,7 +16,7 @@ export class CreateDrugDto {
 
   @IsNotEmpty()
   @IsValueContaining(DRUG_STRENGTHS, {
-    message: 'Invalid strength',
+    message: 'Invalid drug strength',
   })
   strength: string;
 
