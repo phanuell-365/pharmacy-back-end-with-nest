@@ -6,7 +6,7 @@ import { Role } from '../enums';
   paranoid: true,
   defaultScope: {
     attributes: {
-      exclude: ['deletedAt', 'createdAt', 'updatedAt'],
+      exclude: ['password', 'createdAt', 'deletedAt', 'updatedAt'],
     },
   },
 })

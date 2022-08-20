@@ -50,7 +50,7 @@ export class AuthService {
     // create a default admin if there is none
     await this.createDefaultAdmin();
 
-    const userFound = await this.userRepository.findOne({
+    const userFound = await this.userRepository.unscoped().findOne({
       where: {
         username: user.username,
       },
