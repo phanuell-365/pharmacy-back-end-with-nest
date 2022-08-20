@@ -18,7 +18,13 @@ export class DrugsService {
   }
 
   async findOne(id: string): Promise<Drug> {
-    return await this.drugRepository.findByPk(id);
+    const drug = await this.drugRepository.findByPk(id);
+
+    if (!drug) {
+      throw new ForbiddenException('Drug not found');
+    }
+
+    return drug;
   }
 
   async update(id: string, updateDrugDto: UpdateDrugDto): Promise<Drug> {
@@ -32,6 +38,12 @@ export class DrugsService {
   }
 
   async remove(id: string) {
-    return await this.drugRepository.destroy({ where: { id } });
+    const drug = await this.drugRepository.findByPk(id);
+
+    if (!drug) {
+      throw new ForbiddenException('Drug not found');
+    }
+
+    return await drug.destroy();
   }
 }
