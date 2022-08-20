@@ -180,6 +180,8 @@ describe('Pharmacy App e2e', function () {
     describe('Update a drug', function () {
       const updateDrug: UpdateDrugDto = {
         name: 'Amoxicillin',
+        strength: '1000mg',
+        doseForm: DoseForms.CAPSULE,
       };
 
       it('should update a drug and return it', function () {
@@ -190,9 +192,35 @@ describe('Pharmacy App e2e', function () {
           .withHeaders({
             Authorization: 'Bearer $S{accessToken}',
           })
-          .withBody({ ...updateDrug })
+          .withBody({ name: updateDrug.name })
           .expectStatus(200)
           .expectBodyContains(updateDrug.name);
+      });
+
+      it('should update the drug strength', function () {
+        return pactum
+          .spec()
+          .patch('/drugs/{id}')
+          .withPathParams('id', '$S{drugId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .withBody({ strength: updateDrug.strength })
+          .expectStatus(200)
+          .expectBodyContains(updateDrug.strength);
+      });
+
+      it('should update the drug dose form', function () {
+        return pactum
+          .spec()
+          .patch('/drugs/{id}')
+          .withPathParams('id', '$S{drugId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .withBody({ doseForm: updateDrug.doseForm })
+          .expectStatus(200)
+          .expectBodyContains(updateDrug.doseForm);
       });
     });
 
@@ -215,8 +243,7 @@ describe('Pharmacy App e2e', function () {
           .withHeaders({
             Authorization: 'Bearer $S{accessToken}',
           })
-          .expectStatus(200)
-          .inspect();
+          .expectStatus(200);
       });
     });
   });

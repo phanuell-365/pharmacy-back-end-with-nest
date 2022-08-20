@@ -1,12 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DrugsController } from './drugs.controller';
 import { DrugsService } from './drugs.service';
-import { drugProviders } from './drug.provider';
+import { drugProviders } from './drugs.provider';
 
 describe('DrugsController', () => {
   let controller: DrugsController;
-
-  const mockDrugRepository = {};
   const mockDrugService = {};
 
   beforeEach(async () => {

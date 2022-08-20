@@ -15,6 +15,7 @@ export class CreateDrugDto {
   readonly doseForm: DoseForms;
 
   @IsNotEmpty()
+  @IsString()
   @IsValueContaining(DRUG_STRENGTHS, {
     message: 'Invalid drug strength',
   })

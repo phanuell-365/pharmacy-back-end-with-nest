@@ -33,7 +33,7 @@ export class DrugsService {
     if (!drug) {
       throw new ForbiddenException('Drug not found');
     }
-    console.log(updateDrugDto);
+
     return await drug.update({ ...updateDrugDto });
   }
 
