@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { CreateDrugDto, UpdateDrugDto } from './dto';
 import { DRUG_REPOSITORY } from './constants';
 import { Drug } from './entities/drug.entity';
@@ -21,14 +21,14 @@ export class DrugsService {
     return await this.drugRepository.findByPk(id);
   }
 
-  async update(
-    id: string,
-    updateDrugDto: UpdateDrugDto,
-  ): Promise<[affectedCount: number]> {
-    return await this.drugRepository.update(
-      { ...updateDrugDto },
-      { where: { id } },
-    );
+  async update(id: string, updateDrugDto: UpdateDrugDto): Promise<Drug> {
+    const drug = await this.drugRepository.findByPk(id);
+
+    if (!drug) {
+      throw new ForbiddenException('Drug not found');
+    }
+    console.log(updateDrugDto);
+    return await drug.update({ ...updateDrugDto });
   }
 
   async remove(id: string) {

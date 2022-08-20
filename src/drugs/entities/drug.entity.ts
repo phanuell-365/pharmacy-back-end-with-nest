@@ -4,6 +4,12 @@ import { DOSE_FORMS, DRUG_STRENGTHS } from '../constants';
 
 @Table({
   tableName: 'Drugs',
+  paranoid: true,
+  defaultScope: {
+    attributes: {
+      exclude: ['createdAt', 'deletedAt', 'updatedAt'],
+    },
+  },
 })
 export class Drug extends Model {
   @Column({

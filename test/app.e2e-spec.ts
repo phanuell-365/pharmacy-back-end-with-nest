@@ -2,10 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as pactum from 'pactum';
-import { CreateUserDto } from '../src/users/dto';
+import { CreateUserDto, UpdateUserDto } from '../src/users/dto';
 import { Role } from '../src/users/enums';
 import { AuthDto } from '../src/auth/dto';
-import { CreateDrugDto } from '../src/drugs/dto';
+import { CreateDrugDto, UpdateDrugDto } from '../src/drugs/dto';
 import { DoseForms } from '../src/drugs/enums';
 
 describe('Pharmacy App e2e', function () {
@@ -41,8 +41,7 @@ describe('Pharmacy App e2e', function () {
           .post('/auth/login')
           .withBody({ ...authDto })
           .expectStatus(201)
-          .stores('accessToken', 'access_token')
-          .inspect();
+          .stores('accessToken', 'access_token');
       });
     });
   });
@@ -65,6 +64,7 @@ describe('Pharmacy App e2e', function () {
             Authorization: 'Bearer $S{accessToken}',
           })
           .withBody({ ...newUser })
+          .stores('userId', 'id')
           .expectStatus(201);
       });
     });
@@ -78,6 +78,51 @@ describe('Pharmacy App e2e', function () {
             Authorization: 'Bearer $S{accessToken}',
           })
           .expectStatus(200);
+      });
+    });
+
+    describe('Get a user', function () {
+      it('should return a user', function () {
+        return pactum
+          .spec()
+          .get('/users/{id}')
+          .withPathParams('id', '$S{userId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(200)
+          .expectBodyContains(newUser.username);
+      });
+    });
+
+    describe('Update a user', function () {
+      const updateUser: UpdateUserDto = {
+        username: 'Jane Miller',
+        email: 'janemiller@localhost.com',
+      };
+      it('should return the updated user', function () {
+        return pactum
+          .spec()
+          .patch('/users/{id}')
+          .withPathParams('id', '$S{userId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .withBody({ ...updateUser })
+          .expectStatus(200)
+          .expectBodyContains(updateUser.username);
+      });
+    });
+    describe('Delete a user', function () {
+      it('should delete a user', function () {
+        return pactum
+          .spec()
+          .delete('/users/{id}')
+          .withPathParams('id', '$S{userId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(204);
       });
     });
   });
@@ -101,12 +146,69 @@ describe('Pharmacy App e2e', function () {
           })
           .withBody({ ...newDrug })
           .expectStatus(201)
+          .expectBodyContains(newDrug.name)
+          .stores('drugId', 'id');
+      });
+    });
+
+    describe('Get a drug', function () {
+      it('should return a drug', function () {
+        return pactum
+          .spec()
+          .get('/drugs/{id}')
+          .withPathParams('id', '$S{drugId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(200)
           .expectBodyContains(newDrug.name);
       });
     });
 
     describe('Get all drugs', function () {
       it('should return all the drugs', function () {
+        return pactum
+          .spec()
+          .get('/drugs')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(200);
+      });
+    });
+
+    describe('Update a drug', function () {
+      const updateDrug: UpdateDrugDto = {
+        name: 'Amoxicillin',
+      };
+
+      it('should update a drug and return it', function () {
+        return pactum
+          .spec()
+          .patch('/drugs/{id}')
+          .withPathParams('id', '$S{drugId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .withBody({ ...updateDrug })
+          .expectStatus(200)
+          .expectBodyContains(updateDrug.name);
+      });
+    });
+
+    describe('Delete a drug', function () {
+      it('should delete a drug', function () {
+        return pactum
+          .spec()
+          .delete('/drugs/{id}')
+          .withPathParams('id', '$S{drugId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(204);
+      });
+
+      it('should get all drugs', function () {
         return pactum
           .spec()
           .get('/drugs')
