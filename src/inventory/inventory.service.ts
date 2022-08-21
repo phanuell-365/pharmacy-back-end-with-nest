@@ -68,6 +68,12 @@ export class InventoryService {
       throw new ForbiddenException('Inventory not found');
     }
 
+    // if (process.env.NODE_ENV === 'test') {
+    //   return await inventory.destroy({
+    //     force: true,
+    //   });
+    // }
+
     return await inventory.destroy();
   }
 }

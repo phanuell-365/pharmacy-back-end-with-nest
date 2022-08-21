@@ -44,6 +44,12 @@ export class DrugsService {
       throw new ForbiddenException('Drug not found');
     }
 
+    // if (process.env.NODE_ENV === 'test') {
+    //   return await drug.destroy({
+    //     force: true,
+    //   });
+    // }
+
     return await drug.destroy();
   }
 }
