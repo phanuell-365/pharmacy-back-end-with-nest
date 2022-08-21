@@ -1,6 +1,7 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { Column, DataType, HasOne, Model, Table } from 'sequelize-typescript';
 import { DoseForms } from '../enums';
 import { DOSE_FORMS, DRUG_STRENGTHS } from '../constants';
+import { Inventory } from '../../inventory/entities/inventory.entity';
 
 @Table({
   tableName: 'Drugs',
@@ -59,4 +60,10 @@ export class Drug extends Model {
     allowNull: false,
   })
   therapeuticClass: string;
+
+  @HasOne(() => Inventory, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
+  inventory: Inventory;
 }

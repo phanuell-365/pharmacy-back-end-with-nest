@@ -5,6 +5,7 @@ import { User } from '../users/entities/user.entity';
 import { Drug } from '../drugs/entities/drug.entity';
 import { Supplier } from '../suppliers/entities/supplier.entity';
 import { Patient } from '../patients/entities/patient.entity';
+import { Inventory } from '../inventory/entities/inventory.entity';
 
 export const databaseProviders = [
   {
@@ -27,7 +28,7 @@ export const databaseProviders = [
       }
 
       const sequelize = new Sequelize(config);
-      sequelize.addModels([User, Drug, Supplier, Patient]);
+      sequelize.addModels([User, Drug, Supplier, Patient, Inventory]);
 
       switch (process.env.NODE_ENV) {
         case TEST:
