@@ -3,14 +3,18 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { SuppliersService } from './suppliers.service';
-import { CreateSupplierDto } from './dto/create-supplier.dto';
-import { UpdateSupplierDto } from './dto/update-supplier.dto';
+import { CreateSupplierDto, UpdateSupplierDto } from './dto';
+import { JwtGuard } from '../auth/guard';
 
+@UseGuards(JwtGuard)
 @Controller('suppliers')
 export class SuppliersController {
   constructor(private readonly suppliersService: SuppliersService) {}
@@ -27,7 +31,7 @@ export class SuppliersController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.suppliersService.findOne(+id);
+    return this.suppliersService.findOne(id);
   }
 
   @Patch(':id')
@@ -35,11 +39,12 @@ export class SuppliersController {
     @Param('id') id: string,
     @Body() updateSupplierDto: UpdateSupplierDto,
   ) {
-    return this.suppliersService.update(+id, updateSupplierDto);
+    return this.suppliersService.update(id, updateSupplierDto);
   }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.suppliersService.remove(+id);
+    return this.suppliersService.remove(id);
   }
 }

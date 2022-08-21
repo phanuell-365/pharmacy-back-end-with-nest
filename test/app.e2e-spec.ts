@@ -7,6 +7,7 @@ import { Role } from '../src/users/enums';
 import { AuthDto } from '../src/auth/dto';
 import { CreateDrugDto, UpdateDrugDto } from '../src/drugs/dto';
 import { DoseForms } from '../src/drugs/enums';
+import { CreateSupplierDto, UpdateSupplierDto } from '../src/suppliers/dto';
 
 describe('Pharmacy App e2e', function () {
   let app: INestApplication;
@@ -244,6 +245,102 @@ describe('Pharmacy App e2e', function () {
             Authorization: 'Bearer $S{accessToken}',
           })
           .expectStatus(200);
+      });
+    });
+  });
+
+  describe('Suppliers', function () {
+    const newSupplier: CreateSupplierDto = {
+      name: 'Beta Healthcare',
+      phone: '0712345678',
+      email: 'betahealthcare@info.com',
+    };
+
+    describe('Create Supplier', function () {
+      it('should create a new supplier', function () {
+        return pactum
+          .spec()
+          .post('/suppliers')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .withBody({ ...newSupplier })
+          .expectStatus(201)
+          .expectBodyContains(newSupplier.name)
+          .stores('supplierId', 'id');
+      });
+    });
+
+    describe('Get a supplier', function () {
+      it('should return a supplier', function () {
+        return pactum
+          .spec()
+          .get('/suppliers/{id}')
+          .withPathParams('id', '$S{supplierId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(200)
+          .expectBodyContains(newSupplier.name);
+      });
+    });
+
+    describe('Get all suppliers', function () {
+      it('should return all users', function () {
+        return pactum
+          .spec()
+          .get('/suppliers')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(200);
+      });
+    });
+
+    describe('Update a supplier', function () {
+      const updateSupplier: UpdateSupplierDto = {
+        name: 'Alpha Healthcare',
+        phone: '0712345678',
+        email: 'alphahealthcare@info.com',
+      };
+
+      it("should update the supplier's name", function () {
+        return pactum
+          .spec()
+          .patch('/suppliers/{id}')
+          .withPathParams('id', '$S{supplierId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .withBody({ name: updateSupplier.name })
+          .expectStatus(200)
+          .expectBodyContains(updateSupplier.name);
+      });
+
+      it("should update the supplier's email", function () {
+        return pactum
+          .spec()
+          .patch('/suppliers/{id}')
+          .withPathParams('id', '$S{supplierId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .withBody({ email: updateSupplier.email })
+          .expectStatus(200)
+          .expectBodyContains(updateSupplier.email);
+      });
+    });
+
+    describe('Delete a supplier by id', function () {
+      it('should delete a user by id', function () {
+        return pactum
+          .spec()
+          .delete('/suppliers/{id}')
+          .withPathParams('id', '$S{supplierId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(204);
       });
     });
   });
