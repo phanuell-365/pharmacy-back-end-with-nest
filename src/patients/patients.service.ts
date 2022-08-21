@@ -1,26 +1,60 @@
-import { Injectable } from '@nestjs/common';
-import { CreatePatientDto } from './dto/create-patient.dto';
-import { UpdatePatientDto } from './dto/update-patient.dto';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import { CreatePatientDto, UpdatePatientDto } from './dto';
+import { PATIENT_REPOSITORY } from './constants';
+import { Patient } from './entities/patient.entity';
 
 @Injectable()
 export class PatientsService {
-  create(createPatientDto: CreatePatientDto) {
-    return 'This action adds a new patient';
+  constructor(
+    @Inject(PATIENT_REPOSITORY)
+    private readonly patientRepository: typeof Patient,
+  ) {}
+
+  async create(createPatientDto: CreatePatientDto) {
+    const patient = await this.patientRepository.findOne({
+      where: {
+        name: createPatientDto.name,
+      },
+    });
+
+    if (patient) {
+      throw new ForbiddenException('Patient already exists');
+    }
+
+    return await this.patientRepository.create({ ...createPatientDto });
   }
 
-  findAll() {
-    return `This action returns all patients`;
+  async findAll() {
+    return await this.patientRepository.findAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} patient`;
+  async findOne(id: string) {
+    const patient = await this.patientRepository.findByPk(id);
+
+    if (!patient) {
+      throw new ForbiddenException('Patient not found');
+    }
+
+    return patient;
   }
 
-  update(id: number, updatePatientDto: UpdatePatientDto) {
-    return `This action updates a #${id} patient`;
+  async update(id: string, updatePatientDto: UpdatePatientDto) {
+    const patient = await this.patientRepository.findByPk(id);
+
+    if (!patient) {
+      throw new ForbiddenException('Patient not found');
+    }
+
+    return await patient.update({ ...updatePatientDto });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} patient`;
+  async remove(id: string) {
+    const patient = await this.patientRepository.findByPk(id);
+
+    if (!patient) {
+      throw new ForbiddenException('Patient not found');
+    }
+
+    return await patient.destroy();
   }
 }

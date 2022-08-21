@@ -8,6 +8,7 @@ import { AuthDto } from '../src/auth/dto';
 import { CreateDrugDto, UpdateDrugDto } from '../src/drugs/dto';
 import { DoseForms } from '../src/drugs/enums';
 import { CreateSupplierDto, UpdateSupplierDto } from '../src/suppliers/dto';
+import { CreatePatientDto, UpdatePatientDto } from '../src/patients/dto';
 
 describe('Pharmacy App e2e', function () {
   let app: INestApplication;
@@ -269,6 +270,17 @@ describe('Pharmacy App e2e', function () {
           .expectBodyContains(newSupplier.name)
           .stores('supplierId', 'id');
       });
+
+      it('should fail creating the same supplier', function () {
+        return pactum
+          .spec()
+          .post('/suppliers')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .withBody({ ...newSupplier })
+          .expectStatus(403);
+      });
     });
 
     describe('Get a supplier', function () {
@@ -341,6 +353,132 @@ describe('Pharmacy App e2e', function () {
             Authorization: 'Bearer $S{accessToken}',
           })
           .expectStatus(204);
+      });
+    });
+  });
+
+  describe('Patients', function () {
+    const newPatient: CreatePatientDto = {
+      name: 'John Doe',
+      phone: '0712345678',
+      email: 'johndoe@localhost.com',
+    };
+
+    describe('Create Patient', function () {
+      it('should create and return the new patient', function () {
+        return pactum
+          .spec()
+          .post('/patients')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .withBody({ ...newPatient })
+          .expectStatus(201)
+          .expectBodyContains(newPatient.name)
+          .stores('patientId', 'id');
+      });
+    });
+
+    describe('Get all patients', function () {
+      it('should return all patients', function () {
+        return pactum
+          .spec()
+          .get('/patients')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(200);
+      });
+    });
+
+    describe('Get a patient by id', function () {
+      it('should return a patient', function () {
+        return pactum
+          .spec()
+          .get('/patients/{id}')
+          .withPathParams('id', '$S{patientId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(200)
+          .expectBodyContains(newPatient.name)
+          .inspect();
+      });
+    });
+
+    describe('Update a patient', function () {
+      const updatePatient: UpdatePatientDto = {
+        name: 'Jane Doe',
+        phone: '0700000000',
+        email: 'janedoe@localhost.com',
+      };
+
+      it("should update the patient's name", function () {
+        return pactum
+          .spec()
+          .patch('/patients/{id}')
+          .withPathParams('id', '$S{patientId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .withBody({ name: updatePatient.name })
+          .expectStatus(200)
+          .expectBodyContains(updatePatient.name)
+          .inspect();
+      });
+
+      it("should update the patient's email", function () {
+        return pactum
+          .spec()
+          .patch('/patients/{id}')
+          .withPathParams('id', '$S{patientId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .withBody({ email: updatePatient.email })
+          .expectStatus(200)
+          .expectBodyContains(updatePatient.email)
+          .inspect();
+      });
+
+      it("should update the patient's phone", function () {
+        return pactum
+          .spec()
+          .patch('/patients/{id}')
+          .withPathParams('id', '$S{patientId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .withBody({ phone: updatePatient.phone })
+          .expectStatus(200)
+          .expectBodyContains(updatePatient.phone)
+          .inspect();
+      });
+    });
+
+    describe('Delete a patient', function () {
+      it('should delete a patient', function () {
+        return pactum
+          .spec()
+          .delete('/patients/{id}')
+          .withPathParams('id', '$S{patientId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(204)
+          .inspect();
+      });
+
+      it('should return a 403 if the patient does not exist', function () {
+        return pactum
+          .spec()
+          .delete('/patients/{id}')
+          .withPathParams('id', '$S{patientId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(403)
+          .inspect();
       });
     });
   });

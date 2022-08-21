@@ -4,6 +4,7 @@ import { Sequelize } from 'sequelize-typescript';
 import { User } from '../users/entities/user.entity';
 import { Drug } from '../drugs/entities/drug.entity';
 import { Supplier } from '../suppliers/entities/supplier.entity';
+import { Patient } from '../patients/entities/patient.entity';
 
 export const databaseProviders = [
   {
@@ -26,7 +27,7 @@ export const databaseProviders = [
       }
 
       const sequelize = new Sequelize(config);
-      sequelize.addModels([User, Drug, Supplier]);
+      sequelize.addModels([User, Drug, Supplier, Patient]);
 
       switch (process.env.NODE_ENV) {
         case TEST:
