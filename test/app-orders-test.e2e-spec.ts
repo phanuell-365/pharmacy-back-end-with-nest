@@ -7,7 +7,7 @@ import { DoseForms } from '../src/drugs/enums';
 import { CreateDrugDto } from '../src/drugs/dto';
 import { CreateInventoryDto } from '../src/inventory/dto';
 import { IssueUnits } from '../src/inventory/enums';
-import { CreateOrderDto } from '../src/orders/dto';
+import { CreateOrderDto, UpdateOrderDto } from '../src/orders/dto';
 import { OrderStatuses } from '../src/orders/enum';
 import { AuthDto } from '../src/auth/dto';
 
@@ -144,7 +144,76 @@ describe('Order placing Pharmacy App e2e', function () {
           .withBody({ ...newOrder })
           .expectStatus(201)
           .expectBodyContains(newOrder.status)
-          .stores('orderId', 'id')
+          .stores('orderId', 'id');
+      });
+    });
+
+    describe('Get all Orders', function () {
+      it('should return all orders', function () {
+        return pactum
+          .spec()
+          .get('/orders')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(200)
+          .expectBodyContains(newOrder.status);
+      });
+    });
+
+    describe('Get an order', function () {
+      it('should return an order', function () {
+        return pactum
+          .spec()
+          .get(`/orders/${'$S{orderId}'}`)
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(200)
+          .expectBodyContains(newOrder.status);
+      });
+    });
+
+    describe('Update an order', function () {
+      const updatedOrder: UpdateOrderDto = {
+        orderQuantity: 20,
+        status: OrderStatuses.ACTIVE,
+        DrugId: '$S{drugId}',
+        SupplierId: '$S{supplierId}',
+      };
+      it('should update an order', function () {
+        return pactum
+          .spec()
+          .patch(`/orders/${'$S{orderId}'}`)
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .withBody({ ...updatedOrder })
+          .expectStatus(200)
+          .expectBodyContains(updatedOrder.status);
+      });
+    });
+
+    describe('Delete an order', function () {
+      it('should set the order status to cancelled', function () {
+        return pactum
+          .spec()
+          .delete(`/orders/${'$S{orderId}'}`)
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(204)
+          .inspect();
+      });
+
+      it('should get all orders after cancellation', function () {
+        return pactum
+          .spec()
+          .get('/orders')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(200)
           .inspect();
       });
     });

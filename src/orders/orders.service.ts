@@ -6,6 +6,8 @@ import { SUPPLIER_REPOSITORY } from '../suppliers/constants';
 import { Supplier } from '../suppliers/entities/supplier.entity';
 import { ORDER_REPOSITORY } from './constants';
 import { Order } from './entities/order.entity';
+import { Op } from 'sequelize';
+import { OrderStatuses } from './enum';
 
 @Injectable()
 export class OrdersService {
@@ -43,7 +45,15 @@ export class OrdersService {
   }
 
   async findAll() {
-    return await this.orderRepository.findAll();
+    return await this.orderRepository.findAll({
+      where: {
+        [Op.or]: [
+          { status: OrderStatuses.PENDING },
+          { status: OrderStatuses.ACTIVE },
+          { status: OrderStatuses.DELIVERED },
+        ],
+      },
+    });
   }
 
   async findOne(orderId: string) {
@@ -53,8 +63,14 @@ export class OrdersService {
       throw new ForbiddenException('Order not found');
     }
 
+    if (order.status === OrderStatuses.CANCELLED) {
+      throw new ForbiddenException('Order is cancelled');
+    }
+
     return order;
   }
+
+  // TODO: implement findActiveOrders, findPendingOrders, findDeliveredOrders and findCancelledOrders
 
   async update(
     drugId: string,
@@ -81,6 +97,6 @@ export class OrdersService {
 
   async remove(orderId: string) {
     const order = await this.findOne(orderId);
-    return order.destroy();
+    return order.update({ status: OrderStatuses.CANCELLED });
   }
 }
