@@ -11,6 +11,8 @@ import { IssueUnits } from '../src/inventory/enums';
 describe('Pharmacy Mini-App for Drug and Inventory e2e', function () {
   let miniApp: INestApplication;
 
+  jest.setTimeout(10000);
+
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [AppModule],

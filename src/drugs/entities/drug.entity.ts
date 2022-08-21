@@ -1,7 +1,15 @@
-import { Column, DataType, HasOne, Model, Table } from 'sequelize-typescript';
+import {
+  Column,
+  DataType,
+  HasMany,
+  HasOne,
+  Model,
+  Table,
+} from 'sequelize-typescript';
 import { DoseForms } from '../enums';
 import { DOSE_FORMS, DRUG_STRENGTHS } from '../constants';
 import { Inventory } from '../../inventory/entities/inventory.entity';
+import { Order } from '../../orders/entities/order.entity';
 
 @Table({
   tableName: 'Drugs',
@@ -66,4 +74,10 @@ export class Drug extends Model {
     onDelete: 'CASCADE',
   })
   inventory: Inventory;
+
+  @HasMany(() => Order, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
+  orders: Order[];
 }

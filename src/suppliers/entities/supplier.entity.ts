@@ -1,4 +1,5 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
+import { Order } from '../../orders/entities/order.entity';
 
 @Table({
   tableName: 'Supplier',
@@ -39,4 +40,10 @@ export class Supplier extends Model {
     unique: true,
   })
   phone: string;
+
+  @HasMany(() => Order, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
+  orders: Order[];
 }
