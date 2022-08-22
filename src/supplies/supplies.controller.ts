@@ -3,21 +3,28 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { SuppliesService } from './supplies.service';
-import { CreateSupplyDto } from './dto/create-supply.dto';
-import { UpdateSupplyDto } from './dto/update-supply.dto';
+import { CreateSupplyDto, UpdateSupplyDto } from './dto';
+import { JwtGuard } from '../auth/guard';
 
+@UseGuards(JwtGuard)
 @Controller('supplies')
 export class SuppliesController {
   constructor(private readonly suppliesService: SuppliesService) {}
 
   @Post()
-  create(@Body() createSupplyDto: CreateSupplyDto) {
-    return this.suppliesService.create(createSupplyDto);
+  create(
+    @Body('OrderId') orderId: string,
+    @Body() createSupplyDto: CreateSupplyDto,
+  ) {
+    return this.suppliesService.create(orderId, createSupplyDto);
   }
 
   @Get()
@@ -26,17 +33,22 @@ export class SuppliesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.suppliesService.findOne(+id);
+  findOne(@Param('id') supplyId: string) {
+    return this.suppliesService.findOne(supplyId);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSupplyDto: UpdateSupplyDto) {
-    return this.suppliesService.update(+id, updateSupplyDto);
+  update(
+    @Param('id') supplyId: string,
+    @Body('OrderId') orderId: string,
+    @Body() updateSupplyDto: UpdateSupplyDto,
+  ) {
+    return this.suppliesService.update(orderId, supplyId, updateSupplyDto);
   }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.suppliesService.remove(+id);
+  remove(@Param('id') supplyId: string) {
+    return this.suppliesService.remove(supplyId);
   }
 }

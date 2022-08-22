@@ -2,7 +2,7 @@ import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
 import { Order } from '../../orders/entities/order.entity';
 
 @Table({
-  tableName: 'Supplier',
+  tableName: 'Suppliers',
   paranoid: true,
   defaultScope: {
     attributes: {

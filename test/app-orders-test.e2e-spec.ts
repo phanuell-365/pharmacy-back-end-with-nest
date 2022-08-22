@@ -165,7 +165,7 @@ describe('Order placing Pharmacy App e2e', function () {
       it('should return an order', function () {
         return pactum
           .spec()
-          .get(`/orders/${'$S{orderId}'}`)
+          .get('/orders/$S{orderId}')
           .withHeaders({
             Authorization: 'Bearer $S{accessToken}',
           })
@@ -184,7 +184,7 @@ describe('Order placing Pharmacy App e2e', function () {
       it('should update an order', function () {
         return pactum
           .spec()
-          .patch(`/orders/${'$S{orderId}'}`)
+          .patch('/orders/$S{orderId}')
           .withHeaders({
             Authorization: 'Bearer $S{accessToken}',
           })
@@ -198,7 +198,7 @@ describe('Order placing Pharmacy App e2e', function () {
       it('should set the order status to cancelled', function () {
         return pactum
           .spec()
-          .delete(`/orders/${'$S{orderId}'}`)
+          .delete('/orders/$S{orderId}')
           .withHeaders({
             Authorization: 'Bearer $S{accessToken}',
           })

@@ -1,7 +1,7 @@
 import { Column, DataType, Model, Table } from 'sequelize-typescript';
 
 @Table({
-  tableName: 'Patient',
+  tableName: 'Patients',
   paranoid: true,
   defaultScope: {
     attributes: {

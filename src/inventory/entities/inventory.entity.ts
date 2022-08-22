@@ -10,7 +10,6 @@ import { ISSUE_UNITS } from '../constants';
 import { Drug } from '../../drugs/entities/drug.entity';
 
 @Table({
-  tableName: 'Inventory',
   paranoid: true,
   defaultScope: {
     attributes: {

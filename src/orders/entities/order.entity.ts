@@ -3,6 +3,7 @@ import {
   Column,
   DataType,
   ForeignKey,
+  HasMany,
   Model,
   Table,
 } from 'sequelize-typescript';
@@ -10,9 +11,10 @@ import { ORDER_STATUSES } from '../constants';
 import { OrderStatuses } from '../enum';
 import { Drug } from '../../drugs/entities/drug.entity';
 import { Supplier } from '../../suppliers/entities/supplier.entity';
+import { Supply } from '../../supplies/entities/supply.entity';
 
 @Table({
-  tableName: 'Order',
+  tableName: 'Orders',
   paranoid: true,
   timestamps: true,
   defaultScope: {
@@ -32,7 +34,7 @@ export class Order extends Model {
   id: string;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.INTEGER,
     allowNull: false,
   })
   orderQuantity: number;
@@ -49,13 +51,19 @@ export class Order extends Model {
   @Column({ allowNull: false, type: DataType.UUID })
   DrugId: string;
 
-  @BelongsTo(() => Drug)
+  @BelongsTo(() => Drug, 'DrugId')
   drug: Drug;
 
   @ForeignKey(() => Supplier)
   @Column({ allowNull: false, type: DataType.UUID })
   SupplierId: string;
 
-  @BelongsTo(() => Supplier)
+  @BelongsTo(() => Supplier, 'SupplierId')
   supplier: Supplier;
+
+  @HasMany(() => Supply, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
+  supplies: Supply[];
 }
