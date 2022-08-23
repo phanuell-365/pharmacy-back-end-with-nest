@@ -3,21 +3,29 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { SalesService } from './sales.service';
-import { CreateSaleDto } from './dto/create-sale.dto';
-import { UpdateSaleDto } from './dto/update-sale.dto';
+import { CreateSaleDto, UpdateSaleDto } from './dto';
+import { JwtGuard } from '../auth/guard';
 
+@UseGuards(JwtGuard)
 @Controller('sales')
 export class SalesController {
   constructor(private readonly salesService: SalesService) {}
 
   @Post()
-  create(@Body() createSaleDto: CreateSaleDto) {
-    return this.salesService.create(createSaleDto);
+  create(
+    @Body('DrugId') drugId: string,
+    @Body('PatientId') patientId: string,
+    @Body() createSaleDto: CreateSaleDto,
+  ) {
+    return this.salesService.create(drugId, patientId, createSaleDto);
   }
 
   @Get()
@@ -26,17 +34,23 @@ export class SalesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.salesService.findOne(+id);
+  findOne(@Param('id') salesId: string) {
+    return this.salesService.findOne(salesId);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSaleDto: UpdateSaleDto) {
-    return this.salesService.update(+id, updateSaleDto);
+  update(
+    @Param('id') salesId: string,
+    @Body('DrugId') drugId: string,
+    @Body('PatientId') patientId: string,
+    @Body() updateSaleDto: UpdateSaleDto,
+  ) {
+    return this.salesService.update(drugId, patientId, salesId, updateSaleDto);
   }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.salesService.remove(+id);
+  remove(@Param('id') salesId: string) {
+    return this.salesService.remove(salesId);
   }
 }

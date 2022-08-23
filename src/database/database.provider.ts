@@ -1,14 +1,15 @@
 import { DEVELOPMENT, PRODUCTION, SEQUELIZE, TEST } from './constants';
 import { databaseConfig } from './database.config';
 import { Sequelize } from 'sequelize-typescript';
-import { User } from '../users/entities/user.entity';
-import { Drug } from '../drugs/entities/drug.entity';
-import { Supplier } from '../suppliers/entities/supplier.entity';
-import { Patient } from '../patients/entities/patient.entity';
-import { Inventory } from '../inventory/entities/inventory.entity';
-import { Order } from '../orders/entities/order.entity';
-import { Supply } from '../supplies/entities/supply.entity';
+import { User } from '../users/entities';
+import { Drug } from '../drugs/entities';
+import { Supplier } from '../suppliers/entities';
+import { Patient } from '../patients/entities';
+import { Inventory } from '../inventory/entities';
+import { Order } from '../orders/entities';
+import { Supply } from '../supplies/entities';
 import { InternalServerErrorException } from '@nestjs/common';
+import { Sale } from '../sales/entities';
 
 export const databaseProviders = [
   {
@@ -39,6 +40,7 @@ export const databaseProviders = [
         Inventory,
         Order,
         Supply,
+        Sale,
       ]);
 
       try {
