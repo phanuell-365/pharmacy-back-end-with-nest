@@ -10,7 +10,7 @@ import { IssueUnits } from '../src/inventory/enums';
 import { CreateDrugDto } from '../src/drugs/dto';
 import { CreateOrderDto } from '../src/orders/dto';
 import { OrderStatuses } from '../src/orders/enum';
-import { CreateSupplyDto } from '../src/supplies/dto';
+import { CreateSupplyDto, UpdateSupplyDto } from '../src/supplies/dto';
 
 describe('Supplying Orders in Pharmacy App e2e', function () {
   let suppliesApp: INestApplication;
@@ -50,79 +50,79 @@ describe('Supplying Orders in Pharmacy App e2e', function () {
           .stores('accessToken', 'access_token');
       });
     });
+  });
 
-    describe('Suppliers', function () {
-      const newSupplier: CreateSupplierDto = {
-        name: 'Beta Healthcare',
-        phone: '0712345678',
-        email: 'betahealthcare@info.com',
-      };
+  describe('Suppliers', function () {
+    const newSupplier: CreateSupplierDto = {
+      name: 'Beta Healthcare',
+      phone: '0712345678',
+      email: 'betahealthcare@info.com',
+    };
 
-      describe('Create Supplier', function () {
-        it('should create a new supplier', function () {
-          return pactum
-            .spec()
-            .post('/suppliers')
-            .withHeaders({
-              Authorization: 'Bearer $S{accessToken}',
-            })
-            .withBody({ ...newSupplier })
-            .expectStatus(201)
-            .expectBodyContains(newSupplier.name)
-            .stores('supplierId', 'id');
-        });
+    describe('Create Supplier', function () {
+      it('should create a new supplier', function () {
+        return pactum
+          .spec()
+          .post('/suppliers')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .withBody({ ...newSupplier })
+          .expectStatus(201)
+          .expectBodyContains(newSupplier.name)
+          .stores('supplierId', 'id');
       });
     });
+  });
 
-    describe('Drugs', function () {
-      const newDrug: CreateDrugDto = {
-        name: 'Aspirin',
-        doseForm: DoseForms.CAPSULE,
-        strength: '250mg',
-        levelOfUse: 5,
-        therapeuticClass: 'Analgesic',
-      };
+  describe('Drugs', function () {
+    const newDrug: CreateDrugDto = {
+      name: 'Aspirin',
+      doseForm: DoseForms.CAPSULE,
+      strength: '250mg',
+      levelOfUse: 5,
+      therapeuticClass: 'Analgesic',
+    };
 
-      describe('Create', function () {
-        it('should create a new drug and return it', function () {
-          return pactum
-            .spec()
-            .post('/drugs')
-            .withHeaders({
-              Authorization: 'Bearer $S{accessToken}',
-            })
-            .withBody({ ...newDrug })
-            .expectStatus(201)
-            .expectBodyContains(newDrug.name)
-            .stores('drugId', 'id');
-        });
+    describe('Create', function () {
+      it('should create a new drug and return it', function () {
+        return pactum
+          .spec()
+          .post('/drugs')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .withBody({ ...newDrug })
+          .expectStatus(201)
+          .expectBodyContains(newDrug.name)
+          .stores('drugId', 'id');
       });
     });
+  });
 
-    describe('Inventory', function () {
-      const newInventory: CreateInventoryDto = {
-        issueUnit: IssueUnits.TABS,
-        issueUnitPrice: 10,
-        issueUnitPerPackSize: 200,
-        packSize: 'Box',
-        packSizePrice: 100,
-        expirationDate: new Date('2023-01-01'),
-        DrugId: '$S{drugId}',
-      };
+  describe('Inventory', function () {
+    const newInventory: CreateInventoryDto = {
+      issueUnit: IssueUnits.TABS,
+      issueUnitPrice: 10,
+      issueUnitPerPackSize: 200,
+      packSize: 'Box',
+      packSizePrice: 100,
+      expirationDate: new Date('2023-01-01'),
+      DrugId: '$S{drugId}',
+    };
 
-      describe('Create Inventory', function () {
-        it('should create and return the new inventory', function () {
-          return pactum
-            .spec()
-            .post('/inventory')
-            .withHeaders({
-              Authorization: 'Bearer $S{accessToken}',
-            })
-            .withBody({ ...newInventory })
-            .expectStatus(201)
-            .expectBodyContains(newInventory.issueUnit)
-            .stores('inventoryId', 'id');
-        });
+    describe('Create Inventory', function () {
+      it('should create and return the new inventory', function () {
+        return pactum
+          .spec()
+          .post('/inventory')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .withBody({ ...newInventory })
+          .expectStatus(201)
+          .expectBodyContains(newInventory.issueUnit)
+          .stores('inventoryId', 'id');
       });
     });
   });
@@ -158,6 +158,32 @@ describe('Supplying Orders in Pharmacy App e2e', function () {
       pricePerPackSize: 100,
       totalPackSizePrice: 1000,
     };
+
+    describe('Get all Orders before Supplying one', function () {
+      it('should return an array of orders', function () {
+        return pactum
+          .spec()
+          .get('/orders')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(200);
+        // .inspect();
+      });
+    });
+
+    describe('Get all pending orders', function () {
+      it('should return an array of pending orders', function () {
+        return pactum
+          .spec()
+          .get('/orders?status=pending')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(200);
+      });
+    });
+
     describe('Create a supply', function () {
       it('should create a supply', function () {
         return pactum
@@ -169,7 +195,79 @@ describe('Supplying Orders in Pharmacy App e2e', function () {
           .withBody({ ...newSupply })
           .expectStatus(201)
           .expectBodyContains(newSupply.packSizeQuantity)
-          .stores('supplyId', 'id')
+          .stores('supplyId', 'id');
+      });
+    });
+
+    describe('Get all delivered orders', function () {
+      it('should return an array of delivered orders', function () {
+        return pactum
+          .spec()
+          .get('/orders?status=delivered')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(200);
+      });
+    });
+
+    describe('Create the same order', function () {
+      it('should return a 403 status', function () {
+        return pactum
+          .spec()
+          .post('/supplies')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .withBody({ ...newSupply })
+          .expectStatus(403);
+      });
+    });
+
+    describe('Delete a delivered order', function () {
+      it('should return a 403 status', function () {
+        return pactum
+          .spec()
+          .delete('/orders/$S{orderId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(403)
+          .inspect();
+      });
+    });
+
+    describe('Get all inventory', function () {
+      it('should return all inventory', function () {
+        return pactum
+          .spec()
+          .get('/inventory')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(200)
+          .inspect();
+      });
+    });
+
+    describe('Update a supply', function () {
+      const updatedSupply: UpdateSupplyDto = {
+        packSizeQuantity: 20,
+        pricePerPackSize: 200,
+        totalPackSizePrice: 2000,
+        OrderId: '$S{orderId}',
+      };
+
+      it('should return the update supply', function () {
+        return pactum
+          .spec()
+          .patch('/supplies/$S{supplyId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .withBody({ ...updatedSupply })
+          .expectStatus(200)
+          .expectBodyContains(updatedSupply.packSizeQuantity)
           .inspect();
       });
     });

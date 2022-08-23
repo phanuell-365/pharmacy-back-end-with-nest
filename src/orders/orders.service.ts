@@ -70,7 +70,37 @@ export class OrdersService {
     return order;
   }
 
-  // TODO: implement findActiveOrders, findPendingOrders, findDeliveredOrders and findCancelledOrders
+  async findActiveOrders() {
+    return await this.orderRepository.findAll({
+      where: {
+        status: OrderStatuses.ACTIVE,
+      },
+    });
+  }
+
+  async findPendingOrders() {
+    return await this.orderRepository.findAll({
+      where: {
+        status: OrderStatuses.PENDING,
+      },
+    });
+  }
+
+  async findDeliveredOrders() {
+    return await this.orderRepository.findAll({
+      where: {
+        status: OrderStatuses.DELIVERED,
+      },
+    });
+  }
+
+  async findCancelledOrders() {
+    return await this.orderRepository.findAll({
+      where: {
+        status: OrderStatuses.CANCELLED,
+      },
+    });
+  }
 
   async update(
     drugId: string,
@@ -97,6 +127,12 @@ export class OrdersService {
 
   async remove(orderId: string) {
     const order = await this.findOne(orderId);
+
+    if (order.status === OrderStatuses.CANCELLED) {
+      throw new ForbiddenException('Order is already cancelled');
+    } else if (order.status === OrderStatuses.DELIVERED) {
+      throw new ForbiddenException('Order is already delivered');
+    }
     return order.update({ status: OrderStatuses.CANCELLED });
   }
 }

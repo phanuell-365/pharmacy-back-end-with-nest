@@ -8,9 +8,11 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto, UpdateOrderDto } from './dto';
+import { OrderStatuses } from './enum';
 
 @Controller('orders')
 export class OrdersController {
@@ -26,8 +28,18 @@ export class OrdersController {
   }
 
   @Get()
-  findAll() {
-    return this.ordersService.findAll();
+  findAll(@Query('status') status: string) {
+    if (status === OrderStatuses.PENDING) {
+      return this.ordersService.findPendingOrders();
+    } else if (status === OrderStatuses.DELIVERED) {
+      return this.ordersService.findDeliveredOrders();
+    } else if (status === OrderStatuses.CANCELLED) {
+      return this.ordersService.findCancelledOrders();
+    } else if (status === OrderStatuses.ACTIVE) {
+      return this.ordersService.findActiveOrders();
+    } else {
+      return this.ordersService.findAll();
+    }
   }
 
   @Get(':id')

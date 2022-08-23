@@ -19,7 +19,9 @@ export class SuppliesService {
     private readonly inventoryRepository: typeof Inventory,
   ) {}
 
-  async create(orderId, createSupplyDto: CreateSupplyDto) {
+  // utility functions
+
+  async getOrder(orderId: string) {
     const order = await this.orderRepository.findByPk(orderId);
 
     if (!order) {
@@ -33,6 +35,118 @@ export class SuppliesService {
     if (order.status === OrderStatuses.DELIVERED) {
       throw new ForbiddenException('Order was delivered');
     }
+
+    return order;
+  }
+
+  async getInventory(drugId: string) {
+    const inventory = await this.inventoryRepository.findOne({
+      where: {
+        DrugId: drugId,
+      },
+    });
+
+    if (!inventory) {
+      throw new ForbiddenException('Inventory not found');
+    }
+
+    return inventory;
+  }
+
+  getNewOrderQuantity(pending: number, supplied: number) {
+    const newOrderQuantity = pending - supplied;
+
+    if (newOrderQuantity < 0) {
+      throw new ForbiddenException(
+        'Supplied quantity is greater than order quantity',
+      );
+    }
+
+    return newOrderQuantity;
+  }
+
+  async updateOrderQuantity(orderId: string, newOrderQuantity: number) {
+    const order = await this.getOrder(orderId);
+
+    if (newOrderQuantity === 0) {
+      await order.update({ status: OrderStatuses.DELIVERED });
+    } else if (newOrderQuantity > 0) {
+      await order.update({
+        orderQuantity: newOrderQuantity,
+        status: OrderStatuses.ACTIVE,
+      });
+    }
+
+    return order;
+  }
+
+  async updateInventoryPackSizeQuantity(
+    drugId: string,
+    currentInventoryPackSizeQuantity: number,
+    suppliedQuantity: number,
+  ) {
+    const newInventoryPackSizeQuantity =
+      currentInventoryPackSizeQuantity + suppliedQuantity;
+
+    const inventory = await this.getInventory(drugId);
+
+    await inventory.update({
+      packSizeQuantity: newInventoryPackSizeQuantity,
+    });
+
+    return inventory;
+  }
+
+  async updateInventoryIssueQuantity(
+    drugId: string,
+    currentInventoryIssueQuantity: number,
+    inventoryIssueUnitPerPackSize: number,
+    suppliedQuantity: number,
+  ) {
+    const newInventoryIssueQuantity =
+      currentInventoryIssueQuantity +
+      suppliedQuantity * inventoryIssueUnitPerPackSize;
+
+    const inventory = await this.getInventory(drugId);
+
+    await inventory.update({
+      issueQuantity: newInventoryIssueQuantity,
+    });
+
+    return inventory;
+  }
+
+  async create(orderId: string, createSupplyDto: CreateSupplyDto) {
+    const order = await this.getOrder(orderId);
+
+    const inventory = await this.getInventory(order.DrugId);
+
+    const pendingOrderQuantity = order.orderQuantity;
+
+    const suppliedQuantity = createSupplyDto.packSizeQuantity;
+
+    const newOrderQuantity = this.getNewOrderQuantity(
+      pendingOrderQuantity,
+      suppliedQuantity,
+    );
+
+    // update order quantity
+    await this.updateOrderQuantity(orderId, newOrderQuantity);
+
+    // update inventory pack size quantity
+    await this.updateInventoryPackSizeQuantity(
+      order.DrugId,
+      inventory.packSizeQuantity,
+      suppliedQuantity,
+    );
+    // update inventory issue quantity
+
+    await this.updateInventoryIssueQuantity(
+      order.DrugId,
+      inventory.issueQuantity,
+      inventory.issueUnitPerPackSize,
+      suppliedQuantity,
+    );
 
     return await this.supplyRepository.create({
       ...createSupplyDto,
@@ -59,16 +173,45 @@ export class SuppliesService {
     supplyId: string,
     updateSupplyDto: UpdateSupplyDto,
   ) {
-    const order = await this.orderRepository.findByPk(orderId);
+    // this statement will throw if the supply does not exist
+    const supply = await this.findOne(supplyId);
 
-    if (!order) {
-      throw new ForbiddenException('Order not found');
+    const order = await this.getOrder(orderId);
+
+    const inventory = await this.getInventory(order.DrugId);
+
+    if (updateSupplyDto.packSizeQuantity) {
+      const pendingOrderQuantity = order.orderQuantity;
+
+      const suppliedQuantity = updateSupplyDto.packSizeQuantity;
+
+      const newOrderQuantity = this.getNewOrderQuantity(
+        pendingOrderQuantity,
+        suppliedQuantity,
+      );
+
+      // update order quantity
+      await this.updateOrderQuantity(orderId, newOrderQuantity);
+
+      // update inventory pack size quantity
+
+      await this.updateInventoryPackSizeQuantity(
+        order.DrugId,
+        inventory.packSizeQuantity,
+        suppliedQuantity,
+      );
+
+      // update inventory issue quantity
+
+      await this.updateInventoryIssueQuantity(
+        order.DrugId,
+        inventory.issueQuantity,
+        inventory.issueUnitPerPackSize,
+        suppliedQuantity,
+      );
     }
 
-    // this statement will throw if the supply does not exist
-    await this.findOne(supplyId);
-
-    return await this.supplyRepository.update(
+    return await supply.update(
       { ...updateSupplyDto },
       { where: { id: supplyId } },
     );
