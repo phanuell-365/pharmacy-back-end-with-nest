@@ -258,7 +258,7 @@ describe('Supplying Orders in Pharmacy App e2e', function () {
         OrderId: '$S{orderId}',
       };
 
-      it('should return the update supply', function () {
+      it('should return a 403 status', function () {
         return pactum
           .spec()
           .patch('/supplies/$S{supplyId}')
@@ -266,8 +266,105 @@ describe('Supplying Orders in Pharmacy App e2e', function () {
             Authorization: 'Bearer $S{accessToken}',
           })
           .withBody({ ...updatedSupply })
+          .expectStatus(403)
+          .inspect();
+      });
+
+      describe('Create an order', function () {
+        const supplyTestOrder: CreateOrderDto = {
+          DrugId: '$S{drugId}',
+          SupplierId: '$S{supplierId}',
+          orderQuantity: 50,
+          status: OrderStatuses.PENDING,
+        };
+
+        it('should create and return the newly created order', function () {
+          return pactum
+            .spec()
+            .post('/orders')
+            .withHeaders({
+              Authorization: 'Bearer $S{accessToken}',
+            })
+            .withBody({ ...supplyTestOrder })
+            .expectStatus(201)
+            .expectBodyContains(supplyTestOrder.status)
+            .stores('orderIdTwo', 'id')
+            .inspect();
+        });
+      });
+
+      it('should return a new supply', function () {
+        updatedSupply.OrderId = '$S{orderIdTwo}';
+        return pactum
+          .spec()
+          .post('/supplies')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .withBody({ ...updatedSupply })
+          .expectStatus(201)
+          .expectBodyContains(newSupply.packSizeQuantity)
+          .inspect();
+      });
+
+      it('should return an inventory', function () {
+        return pactum
+          .spec()
+          .get('/inventory/$S{inventoryId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
           .expectStatus(200)
-          .expectBodyContains(updatedSupply.packSizeQuantity)
+          .expectBodyContains(newSupply.packSizeQuantity)
+          .inspect();
+      });
+
+      it('should return an updated supply', function () {
+        updatedSupply.OrderId = '$S{orderIdTwo}';
+        updatedSupply.packSizeQuantity = 30;
+        return pactum
+          .spec()
+          .post('/supplies')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .withBody({ ...updatedSupply })
+          .expectStatus(201)
+          .expectBodyContains(newSupply.packSizeQuantity)
+          .inspect();
+      });
+
+      it('should return an inventory', function () {
+        return pactum
+          .spec()
+          .get('/inventory/$S{inventoryId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(200)
+          .expectBodyContains(newSupply.packSizeQuantity)
+          .inspect();
+      });
+
+      it('should get all orders', function () {
+        return pactum
+          .spec()
+          .get('/orders')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(200)
+          .inspect();
+      });
+
+      it('should return an array of supplies', function () {
+        return pactum
+          .spec()
+          .get('/supplies')
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(200)
           .inspect();
       });
     });
