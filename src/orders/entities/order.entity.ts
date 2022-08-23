@@ -9,9 +9,10 @@ import {
 } from 'sequelize-typescript';
 import { ORDER_STATUSES } from '../constants';
 import { OrderStatuses } from '../enum';
-import { Drug } from '../../drugs/entities/drug.entity';
-import { Supplier } from '../../suppliers/entities/supplier.entity';
-import { Supply } from '../../supplies/entities/supply.entity';
+import { Drug } from '../../drugs/entities';
+import { Supplier } from '../../suppliers/entities';
+import { Supply } from '../../supplies/entities';
+import { Sale } from '../../sales/entities';
 
 @Table({
   tableName: 'Orders',
@@ -66,4 +67,10 @@ export class Order extends Model {
     onDelete: 'CASCADE',
   })
   supplies: Supply[];
+
+  @HasMany(() => Sale, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
+  sales: Sale[];
 }

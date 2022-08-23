@@ -1,11 +1,11 @@
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { CreateSupplyDto, UpdateSupplyDto } from './dto';
 import { SUPPLY_REPOSITORY } from './constants';
-import { Supply } from './entities/supply.entity';
+import { Supply } from './entities';
 import { ORDER_REPOSITORY } from '../orders/constants';
-import { Order } from '../orders/entities/order.entity';
+import { Order } from '../orders/entities';
 import { INVENTORY_REPOSITORY } from '../inventory/constants';
-import { Inventory } from '../inventory/entities/inventory.entity';
+import { Inventory } from '../inventory/entities';
 import { OrderStatuses } from '../orders/enum';
 
 @Injectable()
