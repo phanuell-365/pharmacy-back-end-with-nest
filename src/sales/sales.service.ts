@@ -9,6 +9,7 @@ import { Inventory } from '../inventory/entities';
 import { SalesStatus } from './enums';
 import { DRUG_REPOSITORY } from '../drugs/constants';
 import { Drug } from '../drugs/entities';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class SalesService {
@@ -60,6 +61,8 @@ export class SalesService {
 
     if (!sale) {
       throw new ForbiddenException('Sale not found');
+    } else if (sale.status === SalesStatus.CANCELLED) {
+      throw new ForbiddenException('Sale is cancelled');
     }
 
     return sale;
@@ -68,9 +71,15 @@ export class SalesService {
   async updateInventory(drugId: string, newInventoryIssueQuantity: number) {
     const inventory = await this.getInventory(drugId);
 
-    if (inventory.issueQuantity < newInventoryIssueQuantity) {
+    // if (inventory.issueQuantity < newInventoryIssueQuantity) {
+    //   throw new ForbiddenException('Inventory is insufficient');
+    // } else if (inventory.issueQuantity === newInventoryIssueQuantity) {
+    //   throw new ForbiddenException('Inventory is equal to new quantity');
+    // }
+
+    if (newInventoryIssueQuantity < 0) {
       throw new ForbiddenException('Inventory is insufficient');
-    } else if (inventory.issueQuantity === newInventoryIssueQuantity) {
+    } else if (newInventoryIssueQuantity === 0) {
       throw new ForbiddenException('Inventory is equal to new quantity');
     }
 
@@ -112,7 +121,14 @@ export class SalesService {
   }
 
   async findAll() {
-    return await this.saleRepository.findAll();
+    return await this.saleRepository.findAll({
+      where: {
+        [Op.or]: [
+          { status: SalesStatus.ISSUED },
+          { status: SalesStatus.PENDING },
+        ],
+      },
+    });
   }
 
   async findOne(salesId: string) {

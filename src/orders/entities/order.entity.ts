@@ -12,7 +12,6 @@ import { OrderStatuses } from '../enum';
 import { Drug } from '../../drugs/entities';
 import { Supplier } from '../../suppliers/entities';
 import { Supply } from '../../supplies/entities';
-import { Sale } from '../../sales/entities';
 
 @Table({
   tableName: 'Orders',
@@ -67,10 +66,4 @@ export class Order extends Model {
     onDelete: 'CASCADE',
   })
   supplies: Supply[];
-
-  @HasMany(() => Sale, {
-    onUpdate: 'CASCADE',
-    onDelete: 'CASCADE',
-  })
-  sales: Sale[];
 }

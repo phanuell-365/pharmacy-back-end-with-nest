@@ -8,7 +8,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
   // set up global prefix for all routes
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix('/v1/api');
 
   await app.listen(process.env.PORT);
 }
