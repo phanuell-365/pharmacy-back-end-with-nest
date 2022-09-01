@@ -16,10 +16,10 @@ export function IsValueContaining(
       constraints: [validValues],
       options: validationOptions,
       validator: {
-        validate(value: any, args: ValidationArguments) {
+        validate(value: string, args: ValidationArguments) {
           const [validValuesArray] = args.constraints;
           return validValuesArray.some((validValue) =>
-            value.includes(validValue),
+            value?.includes(validValue),
           );
         },
         defaultMessage(validationArguments?: ValidationArguments): string {

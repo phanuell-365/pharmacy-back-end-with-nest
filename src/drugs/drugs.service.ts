@@ -1,4 +1,10 @@
-import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { CreateDrugDto, UpdateDrugDto } from './dto';
 import { DOSE_FORMS, DRUG_REPOSITORY, DRUG_STRENGTHS } from './constants';
 import { Drug } from './entities';
@@ -10,7 +16,28 @@ export class DrugsService {
   ) {}
 
   async create(createDrugDto: CreateDrugDto): Promise<Drug> {
-    return await this.drugRepository.create({ ...createDrugDto });
+    if (
+      (await this.drugRepository.findOne({
+        where: {
+          ...createDrugDto,
+        },
+      })) ||
+      (await this.drugRepository.findOne({
+        where: {
+          name: createDrugDto.name,
+          doseForm: createDrugDto.doseForm,
+          strength: createDrugDto.strength,
+        },
+      }))
+    ) {
+      throw new ConflictException('Drug already exists!');
+    }
+
+    try {
+      return await this.drugRepository.create({ ...createDrugDto });
+    } catch (e) {
+      throw new BadRequestException(e?.message);
+    }
   }
 
   async findAll(): Promise<Drug[]> {

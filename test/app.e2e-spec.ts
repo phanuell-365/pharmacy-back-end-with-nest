@@ -6,11 +6,13 @@ import { CreateUserDto, UpdateUserDto } from '../src/users/dto';
 import { Role } from '../src/users/enums';
 import { AuthDto } from '../src/auth/dto';
 import { CreatePatientDto, UpdatePatientDto } from '../src/patients/dto';
+import { CreateDrugDto } from '../src/drugs/dto';
+import { DoseForms } from '../src/drugs/enums';
 
 describe('Pharmacy App e2e', function () {
   let app: INestApplication;
 
-  jest.setTimeout(10000);
+  jest.setTimeout(15000);
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
@@ -21,8 +23,8 @@ describe('Pharmacy App e2e', function () {
     app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
     await app.init();
-    await app.listen(process.env.PORT);
-    pactum.request.setBaseUrl(`http://localhost:${process.env.PORT}`);
+    await app.listen(process.env.TEST_PORT);
+    pactum.request.setBaseUrl(`http://localhost:${process.env.TEST_PORT}`);
   });
 
   afterAll(async () => {
@@ -172,8 +174,7 @@ describe('Pharmacy App e2e', function () {
             Authorization: 'Bearer $S{accessToken}',
           })
           .expectStatus(200)
-          .expectBodyContains(newPatient.name)
-          .inspect();
+          .expectBodyContains(newPatient.name);
       });
     });
 
@@ -194,8 +195,7 @@ describe('Pharmacy App e2e', function () {
           })
           .withBody({ name: updatePatient.name })
           .expectStatus(200)
-          .expectBodyContains(updatePatient.name)
-          .inspect();
+          .expectBodyContains(updatePatient.name);
       });
 
       it("should update the patient's email", function () {
@@ -208,8 +208,7 @@ describe('Pharmacy App e2e', function () {
           })
           .withBody({ email: updatePatient.email })
           .expectStatus(200)
-          .expectBodyContains(updatePatient.email)
-          .inspect();
+          .expectBodyContains(updatePatient.email);
       });
 
       it("should update the patient's phone", function () {
@@ -222,8 +221,7 @@ describe('Pharmacy App e2e', function () {
           })
           .withBody({ phone: updatePatient.phone })
           .expectStatus(200)
-          .expectBodyContains(updatePatient.phone)
-          .inspect();
+          .expectBodyContains(updatePatient.phone);
       });
     });
 
@@ -236,8 +234,7 @@ describe('Pharmacy App e2e', function () {
           .withHeaders({
             Authorization: 'Bearer $S{accessToken}',
           })
-          .expectStatus(204)
-          .inspect();
+          .expectStatus(204);
       });
 
       it('should return a 403 if the patient does not exist', function () {
@@ -248,7 +245,59 @@ describe('Pharmacy App e2e', function () {
           .withHeaders({
             Authorization: 'Bearer $S{accessToken}',
           })
-          .expectStatus(403)
+          .expectStatus(403);
+      });
+    });
+  });
+
+  describe('Drugs', function () {
+    describe('Create a drug', function () {
+      const drugDto: CreateDrugDto = {
+        name: 'lidocaine',
+        doseForm: DoseForms.INJECTION,
+        strength: '0.25%; 0.5% (hydrochloride) in vial',
+        levelOfUse: 3,
+        therapeuticClass: 'Local anaesthetics',
+      };
+
+      it('should create a drug', function () {
+        return pactum
+          .spec()
+          .post('/drugs')
+          .withBody({ ...drugDto })
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(201)
+          .expectBodyContains(drugDto.therapeuticClass);
+      });
+
+      it('should fail and return 409 status', function () {
+        return pactum
+          .spec()
+          .post('/drugs')
+          .withBody({ ...drugDto })
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(409);
+      });
+
+      it('should fail also with a status 409', function () {
+        return pactum
+          .spec()
+          .post('/drugs')
+          .withBody({
+            name: drugDto.name,
+            doseForm: drugDto.doseForm,
+            strength: drugDto.strength,
+            levelOfUse: drugDto.levelOfUse + 1,
+            therapeuticClass: drugDto.therapeuticClass,
+          })
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(409)
           .inspect();
       });
     });

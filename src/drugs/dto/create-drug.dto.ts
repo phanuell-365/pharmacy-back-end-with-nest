@@ -8,17 +8,17 @@ export class CreateDrugDto {
   @IsString()
   name: string;
 
-  @IsNotEmpty()
   @IsEnum(DoseForms, {
     message: 'Invalid dose form',
   })
+  @IsNotEmpty()
   readonly doseForm: DoseForms;
 
-  @IsNotEmpty()
   @IsString()
   @IsValueContaining(DRUG_STRENGTHS, {
     message: 'Invalid drug strength',
   })
+  @IsNotEmpty()
   strength: string;
 
   @IsNotEmpty()
