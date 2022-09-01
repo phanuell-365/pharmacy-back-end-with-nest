@@ -8,13 +8,17 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { DrugsService } from './drugs.service';
 import { CreateDrugDto, UpdateDrugDto } from './dto';
+import { Roles } from '../auth/roles/decorators';
+import { Role } from '../users/enums';
 import { JwtGuard } from '../auth/guard';
 
 @UseGuards(JwtGuard)
+@Roles(Role.ADMIN)
 @Controller('drugs')
 export class DrugsController {
   constructor(private readonly drugsService: DrugsService) {}
@@ -25,7 +29,13 @@ export class DrugsController {
   }
 
   @Get()
-  findAll() {
+  findAll(@Query('resource') resource: string) {
+    switch (resource) {
+      case 'strengths':
+        return this.drugsService.findDrugStrengths();
+      case 'doseForms':
+        return this.drugsService.findDrugDoseForms();
+    }
     return this.drugsService.findAll();
   }
 

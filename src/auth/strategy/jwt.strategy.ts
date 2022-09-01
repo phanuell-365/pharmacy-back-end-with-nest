@@ -2,7 +2,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { USER_REPOSITORY } from '../../users/constants';
 import { Inject } from '@nestjs/common';
-import { User } from '../../users/entities/user.entity';
+import { User } from '../../users/entities';
 import * as fs from 'fs';
 import * as path from 'path';
 

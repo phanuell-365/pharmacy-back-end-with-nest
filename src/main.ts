@@ -7,6 +7,8 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
+  app.enableCors();
+
   // set up global prefix for all routes
   app.setGlobalPrefix('/v1/api');
 

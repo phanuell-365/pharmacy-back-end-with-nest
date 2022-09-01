@@ -1,7 +1,13 @@
-import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from './dto';
-import { USER_REPOSITORY } from './constants';
-import { User } from './entities/user.entity';
+import { USER_REPOSITORY, USERS_ROLES } from './constants';
+import { User } from './entities';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -11,12 +17,27 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
+    const user = await this.userRepository.findOne({
+      where: {
+        ...createUserDto,
+      },
+    });
+
+    console.log(user);
+    if (user) {
+      throw new ConflictException('User already exists!');
+    }
+
     const salt = await bcrypt.genSalt(10);
     createUserDto.password = await bcrypt.hash(createUserDto.password, salt);
 
-    return this.userRepository.create({
-      ...createUserDto,
-    });
+    try {
+      return await this.userRepository.create({
+        ...createUserDto,
+      });
+    } catch (error) {
+      throw new ConflictException(error);
+    }
   }
 
   async findAll() {
@@ -24,7 +45,16 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    return await this.userRepository.findByPk(id);
+    const user = await this.userRepository.findByPk(id);
+
+    if (!user) {
+      throw new BadRequestException('User not found!');
+    }
+    return user;
+  }
+
+  fetchUsersRoles() {
+    return USERS_ROLES;
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {

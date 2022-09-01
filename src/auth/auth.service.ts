@@ -1,5 +1,5 @@
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
-import { User } from '../users/entities/user.entity';
+import { User } from '../users/entities';
 import { USER_REPOSITORY } from '../users/constants';
 import { AuthDto } from './dto';
 import * as bcrypt from 'bcrypt';
@@ -18,7 +18,7 @@ export class AuthService {
   async createDefaultAdmin() {
     const user = await this.userRepository.findOne({
       where: {
-        username: 'Administrator',
+        username: 'Administrator Admin',
       },
     });
 

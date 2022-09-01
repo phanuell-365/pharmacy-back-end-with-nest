@@ -1,7 +1,7 @@
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { CreateDrugDto, UpdateDrugDto } from './dto';
-import { DRUG_REPOSITORY } from './constants';
-import { Drug } from './entities/drug.entity';
+import { DOSE_FORMS, DRUG_REPOSITORY, DRUG_STRENGTHS } from './constants';
+import { Drug } from './entities';
 
 @Injectable()
 export class DrugsService {
@@ -25,6 +25,14 @@ export class DrugsService {
     }
 
     return drug;
+  }
+
+  findDrugStrengths() {
+    return DRUG_STRENGTHS;
+  }
+
+  findDrugDoseForms() {
+    return DOSE_FORMS;
   }
 
   async update(id: string, updateDrugDto: UpdateDrugDto): Promise<Drug> {

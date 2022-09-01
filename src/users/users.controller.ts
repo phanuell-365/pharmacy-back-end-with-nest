@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -25,7 +26,10 @@ export class UsersController {
   }
 
   @Get()
-  findAll() {
+  findAll(@Query('resource') resource: string) {
+    if (resource && resource === 'roles') {
+      return this.usersService.fetchUsersRoles();
+    }
     return this.usersService.findAll();
   }
 
