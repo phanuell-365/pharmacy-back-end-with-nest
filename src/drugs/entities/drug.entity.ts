@@ -8,8 +8,8 @@ import {
 } from 'sequelize-typescript';
 import { DoseForms } from '../enums';
 import { DOSE_FORMS, DRUG_STRENGTHS } from '../constants';
-import { Inventory } from '../../inventory/entities/inventory.entity';
-import { Order } from '../../orders/entities/order.entity';
+import { Inventory } from '../../inventory/entities';
+import { Order } from '../../orders/entities';
 
 @Table({
   tableName: 'Drugs',

@@ -6,7 +6,7 @@ import { CreateUserDto, UpdateUserDto } from '../src/users/dto';
 import { Role } from '../src/users/enums';
 import { AuthDto } from '../src/auth/dto';
 import { CreatePatientDto, UpdatePatientDto } from '../src/patients/dto';
-import { CreateDrugDto } from '../src/drugs/dto';
+import { CreateDrugDto, UpdateDrugDto } from '../src/drugs/dto';
 import { DoseForms } from '../src/drugs/enums';
 
 describe('Pharmacy App e2e', function () {
@@ -297,7 +297,125 @@ describe('Pharmacy App e2e', function () {
           .withHeaders({
             Authorization: 'Bearer $S{accessToken}',
           })
+          .expectStatus(409);
+      });
+    });
+
+    describe('Update a drug', function () {
+      const updateDrugDto: UpdateDrugDto = {
+        name: 'lidocaine',
+        doseForm: DoseForms.INJECTION,
+        strength: '0.25%; 0.5% (hydrochloride) in vial',
+        levelOfUse: 3,
+        therapeuticClass: 'Local anaesthetics',
+      };
+
+      const newDrugDto: CreateDrugDto = {
+        name: 'ketamine',
+        doseForm: DoseForms.CAPSULE,
+        strength: '50 mg (as hydrochloride)/ml in 10‐ml vial.',
+        levelOfUse: 3,
+        therapeuticClass: 'Injectable medicines',
+      };
+
+      it('should successfully create a new drug', function () {
+        return pactum
+          .spec()
+          .post('/drugs')
+          .withBody({ ...newDrugDto })
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(201)
+          .stores('drugId', 'id')
+          .expectBodyContains(newDrugDto.therapeuticClass);
+      });
+
+      it('should successfully update a drug', function () {
+        return pactum
+          .spec()
+          .patch('/drugs/{id}')
+          .withPathParams('id', '$S{drugId}')
+          .withBody({ doseForm: DoseForms.INJECTION })
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(200)
+          .expectBodyContains(newDrugDto.therapeuticClass)
+          .inspect();
+      });
+
+      it('should fail to update the drug', function () {
+        return pactum
+          .spec()
+          .patch('/drugs/{id}')
+          .withPathParams('id', '$S{drugId}')
+          .withBody({ ...updateDrugDto })
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
           .expectStatus(409)
+          .inspect();
+      });
+
+      it('should fail to update the drug', function () {
+        return pactum
+          .spec()
+          .patch('/drugs/{id}')
+          .withPathParams('id', '$S{drugId}')
+          .withBody({ name: updateDrugDto.name })
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(409)
+          .inspect();
+      });
+
+      it('should fail to update the drug', function () {
+        return pactum
+          .spec()
+          .patch('/drugs/{id}')
+          .withPathParams('id', '$S{drugId}')
+          .withBody({
+            name: updateDrugDto.name,
+            doseForm: updateDrugDto.doseForm,
+          })
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(409)
+          .inspect();
+      });
+
+      it('should fail to update the drug', function () {
+        return pactum
+          .spec()
+          .patch('/drugs/{id}')
+          .withPathParams('id', '$S{drugId}')
+          .withBody({
+            doseForm: updateDrugDto.doseForm,
+            strength: updateDrugDto.strength,
+          })
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(200)
+          .inspect();
+      });
+
+      it('should fail to update the drug', function () {
+        return pactum
+          .spec()
+          .patch('/drugs/{id}')
+          .withPathParams('id', '$S{drugId}')
+          .withBody({
+            doseForm: updateDrugDto.doseForm,
+            levelOfUse: updateDrugDto.levelOfUse,
+          })
+          .withHeaders({
+            Authorization: 'Bearer $S{accessToken}',
+          })
+          .expectStatus(200)
           .inspect();
       });
     });

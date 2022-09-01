@@ -69,6 +69,80 @@ export class DrugsService {
       throw new ForbiddenException('Drug not found');
     }
 
+    let existingDrug: Drug;
+
+    if (
+      updateDrugDto.name &&
+      updateDrugDto.doseForm &&
+      updateDrugDto.strength
+    ) {
+      existingDrug = await this.drugRepository.findOne({
+        where: {
+          name: updateDrugDto.name,
+          doseForm: updateDrugDto.doseForm,
+          strength: updateDrugDto.strength,
+        },
+      });
+    }
+
+    if (updateDrugDto.name) {
+      const someDrug = await this.drugRepository.findByPk(id);
+
+      existingDrug = await this.drugRepository.findOne({
+        where: {
+          name: updateDrugDto.name,
+        },
+      });
+
+      if (someDrug.id !== existingDrug.id) {
+        throw new ConflictException(
+          'Drug with given credentials already exists!',
+        );
+      }
+    }
+
+    if (updateDrugDto.name) {
+      const someDrug = await this.drugRepository.findByPk(id);
+
+      existingDrug = await this.drugRepository.findOne({
+        where: {
+          name: updateDrugDto.name,
+          doseForm: someDrug.doseForm,
+          strength: someDrug.strength,
+        },
+      });
+    }
+
+    if (updateDrugDto.doseForm) {
+      const someDrug = await this.drugRepository.findByPk(id);
+
+      existingDrug = await this.drugRepository.findOne({
+        where: {
+          name: someDrug.name,
+          doseForm: updateDrugDto.doseForm,
+          strength: someDrug.strength,
+        },
+      });
+    }
+
+    if (updateDrugDto.strength) {
+      const someDrug = await this.drugRepository.findByPk(id);
+
+      existingDrug = await this.drugRepository.findOne({
+        where: {
+          name: someDrug.name,
+          doseForm: someDrug.doseForm,
+          strength: updateDrugDto.strength,
+        },
+      });
+    }
+
+    if (existingDrug && existingDrug.id !== id) {
+      throw new ConflictException(
+        'Drug with given credentials already exists!',
+      );
+    }
+
     return await drug.update({ ...updateDrugDto });
   }
 
