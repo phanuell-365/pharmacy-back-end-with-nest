@@ -33,7 +33,6 @@ export class Drug extends Model {
   @Column({
     type: DataType.STRING,
     allowNull: false,
-    unique: true,
   })
   name: string;
 
@@ -60,6 +59,13 @@ export class Drug extends Model {
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
+    validate: {
+      isGreaterThanOne(value: number) {
+        if (value <= 0) {
+          throw new Error('Invalid level of use. Level of use <= 0');
+        }
+      },
+    },
   })
   levelOfUse: number;
 

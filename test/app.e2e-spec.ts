@@ -312,9 +312,9 @@ describe('Pharmacy App e2e', function () {
 
       const newDrugDto: CreateDrugDto = {
         name: 'ketamine',
-        doseForm: DoseForms.CAPSULE,
+        doseForm: DoseForms.ORAL_LIQUID,
         strength: '50 mg (as hydrochloride)/ml in 10‐ml vial.',
-        levelOfUse: 3,
+        levelOfUse: 1,
         therapeuticClass: 'Injectable medicines',
       };
 

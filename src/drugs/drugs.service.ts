@@ -36,7 +36,11 @@ export class DrugsService {
     try {
       return await this.drugRepository.create({ ...createDrugDto });
     } catch (e) {
-      throw new BadRequestException(e?.message);
+      if (e?.name === 'SequelizeUniqueConstraintError')
+        throw new BadRequestException(e?.errors.message);
+      console.error(e?.errors);
+
+      throw new BadRequestException(e);
     }
   }
 
@@ -83,22 +87,6 @@ export class DrugsService {
           strength: updateDrugDto.strength,
         },
       });
-    }
-
-    if (updateDrugDto.name) {
-      const someDrug = await this.drugRepository.findByPk(id);
-
-      existingDrug = await this.drugRepository.findOne({
-        where: {
-          name: updateDrugDto.name,
-        },
-      });
-
-      if (someDrug.id !== existingDrug.id) {
-        throw new ConflictException(
-          'Drug with given credentials already exists!',
-        );
-      }
     }
 
     if (updateDrugDto.name) {
