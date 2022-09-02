@@ -1,13 +1,20 @@
-import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  PreconditionFailedException,
+} from '@nestjs/common';
 import { CreateOrderDto, UpdateOrderDto } from './dto';
 import { DRUG_REPOSITORY } from '../drugs/constants';
-import { Drug } from '../drugs/entities/drug.entity';
+import { Drug } from '../drugs/entities';
 import { SUPPLIER_REPOSITORY } from '../suppliers/constants';
-import { Supplier } from '../suppliers/entities/supplier.entity';
+import { Supplier } from '../suppliers/entities';
 import { ORDER_REPOSITORY } from './constants';
-import { Order } from './entities/order.entity';
+import { Order } from './entities';
 import { Op } from 'sequelize';
 import { OrderStatuses } from './enum';
+import { INVENTORY_REPOSITORY } from '../inventory/constants';
+import { Inventory } from '../inventory/entities';
 
 @Injectable()
 export class OrdersService {
@@ -18,7 +25,50 @@ export class OrdersService {
     private readonly supplierRepository: typeof Supplier,
     @Inject(ORDER_REPOSITORY)
     private readonly orderRepository: typeof Order,
+    @Inject(INVENTORY_REPOSITORY)
+    private readonly inventoryRepository: typeof Inventory,
   ) {}
+
+  async getInventory(drugId: string) {
+    const inventory = await this.inventoryRepository.findOne({
+      where: {
+        DrugId: drugId,
+      },
+    });
+
+    if (!inventory) {
+      throw new ForbiddenException('Inventory not found');
+    }
+
+    return inventory;
+  }
+
+  async checkIfInventoryIssueQuantityPriceIsValid(drugId: string) {
+    const inventory = await this.getInventory(drugId);
+
+    if (inventory.issueUnitPrice < 0)
+      throw new PreconditionFailedException(
+        "The drug's issue unit price is invalid!",
+      );
+  }
+
+  async checkIfInventoryIssueUnitPackSizeIsValid(drugId: string) {
+    const inventory = await this.getInventory(drugId);
+
+    if (inventory.issueUnitPerPackSize < 0)
+      throw new PreconditionFailedException(
+        "The drug's issue unit per pack size is invalid!",
+      );
+  }
+
+  async checkIfInventoryPackSizePriceIsValid(drugId: string) {
+    const inventory = await this.getInventory(drugId);
+
+    if (inventory.packSizePrice < 0)
+      throw new PreconditionFailedException(
+        "The drug's pack size price invalid!",
+      );
+  }
 
   async create(
     drugId: string,
@@ -30,6 +80,10 @@ export class OrdersService {
     if (!drug) {
       throw new ForbiddenException('Drug not found');
     }
+
+    await this.checkIfInventoryIssueQuantityPriceIsValid(drugId);
+    await this.checkIfInventoryPackSizePriceIsValid(drugId);
+    await this.checkIfInventoryIssueUnitPackSizeIsValid(drugId);
 
     const supplier = await this.supplierRepository.findByPk(supplierId);
 

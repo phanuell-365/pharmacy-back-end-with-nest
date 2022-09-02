@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { CreateInventoryDto, UpdateInventoryDto } from './dto';
 import { INVENTORY_REPOSITORY, ISSUE_UNITS } from './constants';
-import { Inventory } from './entities/inventory.entity';
-import { Drug } from '../drugs/entities/drug.entity';
+import { Inventory } from './entities';
+import { Drug } from '../drugs/entities';
 import { DRUG_REPOSITORY } from '../drugs/constants';
 
 @Injectable()
