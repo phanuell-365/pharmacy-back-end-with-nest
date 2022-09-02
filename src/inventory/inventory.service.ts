@@ -1,6 +1,11 @@
-import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { CreateInventoryDto, UpdateInventoryDto } from './dto';
-import { INVENTORY_REPOSITORY } from './constants';
+import { INVENTORY_REPOSITORY, ISSUE_UNITS } from './constants';
 import { Inventory } from './entities/inventory.entity';
 import { Drug } from '../drugs/entities/drug.entity';
 import { DRUG_REPOSITORY } from '../drugs/constants';
@@ -21,14 +26,28 @@ export class InventoryService {
       throw new ForbiddenException('Drug not found');
     }
 
+    const inventory = await this.inventoryRepository.findOne({
+      where: {
+        DrugId: drug.id,
+      },
+    });
+
+    if (inventory) {
+      throw new ConflictException('Drug has an associated inventory');
+    }
+
     return await this.inventoryRepository.create({
       ...createInventoryDto,
-      DrugId: drugId,
+      DrugId: drug.id,
     });
   }
 
   async findAll() {
     return await this.inventoryRepository.findAll();
+  }
+
+  findIssueUnits() {
+    return ISSUE_UNITS;
   }
 
   async findOne(id: string) {
