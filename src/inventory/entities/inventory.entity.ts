@@ -6,8 +6,7 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
-import { ISSUE_UNITS } from '../constants';
-import { Drug } from '../../drugs/entities/drug.entity';
+import { Drug } from '../../drugs/entities';
 
 @Table({
   paranoid: true,
@@ -26,13 +25,6 @@ export class Inventory extends Model {
     unique: true,
   })
   id: string;
-
-  @Column({
-    type: DataType.ENUM,
-    values: ISSUE_UNITS,
-    allowNull: false,
-  })
-  issueUnit: string;
 
   @Column({
     type: DataType.INTEGER,

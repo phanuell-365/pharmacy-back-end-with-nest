@@ -5,7 +5,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { CreateInventoryDto, UpdateInventoryDto } from './dto';
-import { INVENTORY_REPOSITORY, ISSUE_UNITS } from './constants';
+import { INVENTORY_REPOSITORY } from './constants';
 import { Inventory } from './entities';
 import { Drug } from '../drugs/entities';
 import { DRUG_REPOSITORY } from '../drugs/constants';
@@ -19,12 +19,18 @@ export class InventoryService {
     private readonly drugRepository: typeof Drug,
   ) {}
 
-  async create(drugId, createInventoryDto: CreateInventoryDto) {
+  async getDrug(drugId: string) {
     const drug = await this.drugRepository.findByPk(drugId);
 
     if (!drug) {
       throw new ForbiddenException('Drug not found');
     }
+
+    return drug;
+  }
+
+  async create(drugId, createInventoryDto: CreateInventoryDto) {
+    const drug = await this.getDrug(drugId);
 
     const inventory = await this.inventoryRepository.findOne({
       where: {
@@ -46,10 +52,6 @@ export class InventoryService {
     return await this.inventoryRepository.findAll();
   }
 
-  findIssueUnits() {
-    return ISSUE_UNITS;
-  }
-
   async findOne(id: string) {
     const inventory = await this.inventoryRepository.findByPk(id);
 
@@ -65,11 +67,7 @@ export class InventoryService {
     inventoryId: string,
     updateInventoryDto: UpdateInventoryDto,
   ) {
-    const drug = await this.drugRepository.findByPk(drugId);
-
-    if (!drug) {
-      throw new ForbiddenException('Drug not found');
-    }
+    await this.getDrug(drugId);
 
     const inventory = await this.inventoryRepository.findByPk(inventoryId);
 

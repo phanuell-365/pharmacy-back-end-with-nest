@@ -8,7 +8,7 @@ export enum IssueUnits {
   SODF = 'SODF',
   CONC = 'CONC',
   SOL = 'SOL',
-  SOL_INJ = 'Sol INJ',
+  SOL_INJ = 'Sol for INJ',
   GRA = 'GRA',
   OR_POWER = 'OR Pow',
   OR_PELLET = 'OR Pel',

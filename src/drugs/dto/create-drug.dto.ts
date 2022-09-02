@@ -1,4 +1,4 @@
-import { DoseForms } from '../enums';
+import { DoseForms, IssueUnits } from '../enums';
 import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { DRUG_STRENGTHS } from '../constants';
 import { IsValueContaining } from '../../validations';
@@ -28,4 +28,8 @@ export class CreateDrugDto {
   @IsNotEmpty()
   @IsString()
   therapeuticClass: string;
+
+  @IsNotEmpty()
+  @IsEnum(IssueUnits, { message: 'Invalid issue unit' })
+  issueUnit: IssueUnits;
 }

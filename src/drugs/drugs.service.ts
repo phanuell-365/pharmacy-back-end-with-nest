@@ -6,7 +6,12 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { CreateDrugDto, UpdateDrugDto } from './dto';
-import { DOSE_FORMS, DRUG_REPOSITORY, DRUG_STRENGTHS } from './constants';
+import {
+  DOSE_FORMS,
+  DRUG_REPOSITORY,
+  DRUG_STRENGTHS,
+  ISSUE_UNITS,
+} from './constants';
 import { Drug } from './entities';
 
 @Injectable()
@@ -64,6 +69,10 @@ export class DrugsService {
 
   findDrugDoseForms() {
     return DOSE_FORMS;
+  }
+
+  findIssueUnits() {
+    return ISSUE_UNITS;
   }
 
   async update(id: string, updateDrugDto: UpdateDrugDto): Promise<Drug> {

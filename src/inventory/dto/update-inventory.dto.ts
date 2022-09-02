@@ -1,9 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateInventoryDto } from './create-inventory.dto';
-import { IssueUnits } from '../enums';
 import {
   IsDate,
-  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -14,10 +12,6 @@ import {
 import { Transform } from 'class-transformer';
 
 export class UpdateInventoryDto extends PartialType(CreateInventoryDto) {
-  @IsOptional()
-  @IsEnum(IssueUnits, { message: 'Invalid issue unit' })
-  issueUnit?: IssueUnits;
-
   @IsOptional()
   @IsNumber()
   issueUnitPrice?: number;

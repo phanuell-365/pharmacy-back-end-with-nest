@@ -8,7 +8,7 @@ export const ISSUE_UNITS = [
   'SODF',
   'CONC',
   'SOL',
-  'Sol INJ',
+  'Sol for INJ',
   'GRA',
   'OR Pow',
   'OR Pel',

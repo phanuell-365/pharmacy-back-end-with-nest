@@ -35,6 +35,8 @@ export class DrugsController {
         return this.drugsService.findDrugStrengths();
       case 'doseForms':
         return this.drugsService.findDrugDoseForms();
+      case 'issue-units':
+        return this.drugsService.findIssueUnits();
     }
     return this.drugsService.findAll();
   }

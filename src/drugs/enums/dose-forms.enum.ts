@@ -15,7 +15,7 @@ export enum DoseForms {
   ORAL_POWDER = 'Oral Powder',
   ORAL_PELLETS = 'Oral Pellets',
   VAGINAL_TABLET = 'Vaginal Tablet',
-  OROMUCASOL_SOLUTION = 'Oromucasol solution',
+  OROMUCOSAL_SOLUTION = 'Oromucosal solution',
   RECTAL_GEL = 'Rectal Gel',
   CREAM = 'Cream',
   OINTMENT = 'Ointment',
@@ -25,6 +25,6 @@ export enum DoseForms {
   EYE_DROPS = 'Eye drops',
   TEST_STRIP = 'Test Strip',
   GEL = 'Gel',
-  INJECTION_VI = 'Injection(VI)',
+  INJECTION_IV = 'Injection(IV)',
   CO_PACK = 'Co-pack',
 }

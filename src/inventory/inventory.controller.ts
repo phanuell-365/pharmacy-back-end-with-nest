@@ -8,7 +8,6 @@ import {
   Param,
   Patch,
   Post,
-  Query,
   UseGuards,
 } from '@nestjs/common';
 import { InventoryService } from './inventory.service';
@@ -29,9 +28,7 @@ export class InventoryController {
   }
 
   @Get()
-  findAll(@Query('resource') resource: string) {
-    if (resource && resource === 'issue-units')
-      return this.inventoryService.findIssueUnits();
+  findAll() {
     return this.inventoryService.findAll();
   }
 
