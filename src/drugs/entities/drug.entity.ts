@@ -7,7 +7,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { DoseForms } from '../enums';
-import { DOSE_FORMS, DRUG_STRENGTHS, ISSUE_UNITS } from '../constants';
+import { DOSE_FORMS, DRUG_STRENGTHS } from '../constants';
 import { Inventory } from '../../inventory/entities';
 import { Order } from '../../orders/entities';
 
@@ -74,13 +74,13 @@ export class Drug extends Model {
     allowNull: false,
   })
   therapeuticClass: string;
-
-  @Column({
-    type: DataType.ENUM,
-    values: ISSUE_UNITS,
-    allowNull: false,
-  })
-  issueUnit: string;
+  //
+  // @Column({
+  //   type: DataType.ENUM,
+  //   values: ISSUE_UNITS,
+  //   allowNull: false,
+  // })
+  // issueUnit: string;
 
   @HasOne(() => Inventory, {
     onUpdate: 'CASCADE',

@@ -6,7 +6,6 @@ import { AuthDto } from '../src/auth/dto';
 import { CreateSupplierDto } from '../src/suppliers/dto';
 import { DoseForms } from '../src/drugs/enums';
 import { CreateInventoryDto } from '../src/inventory/dto';
-import { IssueUnits } from '../src/inventory/enums';
 import { CreateDrugDto } from '../src/drugs/dto';
 import { CreateOrderDto } from '../src/orders/dto';
 import { OrderStatuses } from '../src/orders/enum';
@@ -15,7 +14,7 @@ import { CreateSupplyDto, UpdateSupplyDto } from '../src/supplies/dto';
 describe('Supplying Orders in Pharmacy App e2e', function () {
   let suppliesApp: INestApplication;
 
-  jest.setTimeout(15000);
+  jest.setTimeout(20000);
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
@@ -26,8 +25,8 @@ describe('Supplying Orders in Pharmacy App e2e', function () {
     suppliesApp.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
     await suppliesApp.init();
-    await suppliesApp.listen(process.env.PORT);
-    pactum.request.setBaseUrl(`http://localhost:${process.env.PORT}`);
+    await suppliesApp.listen(process.env.TEST_PORT);
+    pactum.request.setBaseUrl(`http://localhost:${process.env.TEST_PORT}`);
   });
 
   afterAll(async () => {
@@ -102,7 +101,6 @@ describe('Supplying Orders in Pharmacy App e2e', function () {
 
   describe('Inventory', function () {
     const newInventory: CreateInventoryDto = {
-      issueUnit: IssueUnits.TABS,
       issueUnitPrice: 10,
       issueUnitPerPackSize: 200,
       packSize: 'Box',
@@ -121,7 +119,7 @@ describe('Supplying Orders in Pharmacy App e2e', function () {
           })
           .withBody({ ...newInventory })
           .expectStatus(201)
-          .expectBodyContains(newInventory.issueUnit)
+          .expectBodyContains(newInventory.DrugId)
           .stores('inventoryId', 'id');
       });
     });
@@ -303,7 +301,7 @@ describe('Supplying Orders in Pharmacy App e2e', function () {
           })
           .withBody({ ...updatedSupply })
           .expectStatus(201)
-          .expectBodyContains(newSupply.packSizeQuantity)
+          .expectBodyContains(updatedSupply.packSizeQuantity)
           .inspect();
       });
 
@@ -330,7 +328,7 @@ describe('Supplying Orders in Pharmacy App e2e', function () {
           })
           .withBody({ ...updatedSupply })
           .expectStatus(201)
-          .expectBodyContains(newSupply.packSizeQuantity)
+          .expectBodyContains(updatedSupply.packSizeQuantity)
           .inspect();
       });
 

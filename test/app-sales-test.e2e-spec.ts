@@ -7,7 +7,6 @@ import { CreateDrugDto } from '../src/drugs/dto';
 import { DoseForms } from '../src/drugs/enums';
 import { CreateSupplierDto } from '../src/suppliers/dto';
 import { CreateInventoryDto } from '../src/inventory/dto';
-import { IssueUnits } from '../src/inventory/enums';
 import { CreateOrderDto } from '../src/orders/dto';
 import { OrderStatuses } from '../src/orders/enum';
 import { CreateSupplyDto } from '../src/supplies/dto';
@@ -28,8 +27,8 @@ describe('Making a Sale in Pharmacy App e2e', function () {
     salesApp.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
     await salesApp.init();
-    await salesApp.listen(process.env.PORT);
-    pactum.request.setBaseUrl(`http://localhost:${process.env.PORT}`);
+    await salesApp.listen(process.env.TEST_PORT);
+    pactum.request.setBaseUrl(`http://localhost:${process.env.TEST_PORT}`);
   });
 
   afterAll(async () => {
@@ -143,7 +142,6 @@ describe('Making a Sale in Pharmacy App e2e', function () {
   describe('Inventory', function () {
     describe('Create Inventory', function () {
       const inventoryDto: CreateInventoryDto = {
-        issueUnit: IssueUnits.TABS,
         issueUnitPrice: 10,
         issueUnitPerPackSize: 200,
         packSize: 'Box',

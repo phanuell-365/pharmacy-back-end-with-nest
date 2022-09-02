@@ -6,7 +6,6 @@ import { CreateSupplierDto } from '../src/suppliers/dto';
 import { DoseForms } from '../src/drugs/enums';
 import { CreateDrugDto } from '../src/drugs/dto';
 import { CreateInventoryDto } from '../src/inventory/dto';
-import { IssueUnits } from '../src/inventory/enums';
 import { CreateOrderDto, UpdateOrderDto } from '../src/orders/dto';
 import { OrderStatuses } from '../src/orders/enum';
 import { AuthDto } from '../src/auth/dto';
@@ -14,7 +13,7 @@ import { AuthDto } from '../src/auth/dto';
 describe('Order placing Pharmacy App e2e', function () {
   let orderApp: INestApplication;
 
-  jest.setTimeout(10000);
+  jest.setTimeout(15000);
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -24,8 +23,8 @@ describe('Order placing Pharmacy App e2e', function () {
     orderApp.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
     await orderApp.init();
-    await orderApp.listen(process.env.PORT);
-    pactum.request.setBaseUrl(`http://localhost:${process.env.PORT}`);
+    await orderApp.listen(process.env.TEST_PORT);
+    pactum.request.setBaseUrl(`http://localhost:${process.env.TEST_PORT}`);
   });
 
   afterAll(async () => {
@@ -100,7 +99,6 @@ describe('Order placing Pharmacy App e2e', function () {
 
   describe('Inventory', function () {
     const newInventory: CreateInventoryDto = {
-      issueUnit: IssueUnits.TABS,
       issueUnitPrice: 10,
       issueUnitPerPackSize: 200,
       packSize: 'Box',
@@ -119,7 +117,7 @@ describe('Order placing Pharmacy App e2e', function () {
           })
           .withBody({ ...newInventory })
           .expectStatus(201)
-          .expectBodyContains(newInventory.issueUnit)
+          .expectBodyContains(newInventory.issueUnitPrice)
           .stores('inventoryId', 'id');
       });
     });
