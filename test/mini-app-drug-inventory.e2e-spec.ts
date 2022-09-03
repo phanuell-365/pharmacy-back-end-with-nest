@@ -6,12 +6,11 @@ import { AuthDto } from '../src/auth/dto';
 import { DoseForms } from '../src/drugs/enums';
 import { CreateDrugDto, UpdateDrugDto } from '../src/drugs/dto';
 import { CreateInventoryDto, UpdateInventoryDto } from '../src/inventory/dto';
-import { IssueUnits } from '../src/inventory/enums';
 
 describe('Pharmacy Mini-App for Drug and Inventory e2e', function () {
   let miniApp: INestApplication;
 
-  jest.setTimeout(10000);
+  jest.setTimeout(15000);
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
@@ -22,8 +21,8 @@ describe('Pharmacy Mini-App for Drug and Inventory e2e', function () {
     miniApp.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
     await miniApp.init();
-    await miniApp.listen(process.env.PORT);
-    pactum.request.setBaseUrl(`http://localhost:${process.env.PORT}`);
+    await miniApp.listen(process.env.TEST_PORT);
+    pactum.request.setBaseUrl(`http://localhost:${process.env.TEST_PORT}`);
   });
 
   afterAll(async () => {
@@ -184,7 +183,6 @@ describe('Pharmacy Mini-App for Drug and Inventory e2e', function () {
 
   describe('Inventory', function () {
     const newInventory: CreateInventoryDto = {
-      issueUnit: IssueUnits.TABS,
       issueUnitPrice: 10,
       issueUnitPerPackSize: 200,
       packSize: 'Box',
@@ -203,7 +201,7 @@ describe('Pharmacy Mini-App for Drug and Inventory e2e', function () {
           })
           .withBody({ ...newInventory })
           .expectStatus(201)
-          .expectBodyContains(newInventory.issueUnit)
+          .expectBodyContains(newInventory.issueUnitPrice)
           .stores('inventoryId', 'id');
       });
     });
@@ -218,18 +216,17 @@ describe('Pharmacy Mini-App for Drug and Inventory e2e', function () {
             Authorization: 'Bearer $S{accessToken}',
           })
           .expectStatus(200)
-          .expectBodyContains(newInventory.issueUnit);
+          .expectBodyContains(newInventory.issueUnitPrice);
       });
     });
 
     describe('Update Inventory By Id', function () {
       const updateInventory: UpdateInventoryDto = {
-        issueUnit: IssueUnits.CAPS,
         issueUnitPrice: 20,
         issueUnitPerPackSize: 100,
         packSize: 'Bottle',
         packSizePrice: 50,
-        expirationDate: new Date('2023-01-01'),
+        expirationDate: new Date('2024/10/31'),
         DrugId: '$S{newDrugId}',
       };
 
@@ -242,11 +239,11 @@ describe('Pharmacy Mini-App for Drug and Inventory e2e', function () {
           })
           .withPathParams('id', '$S{inventoryId}')
           .withBody({
-            issueUnit: updateInventory.issueUnit,
+            issueUnit: updateInventory.issueUnitPrice,
             DrugId: updateInventory.DrugId,
           })
           .expectStatus(200)
-          .expectBodyContains(updateInventory.issueUnit);
+          .expectBodyContains(updateInventory.issueUnitPrice);
       });
 
       it("should update an inventory's issue unit price by id", function () {
@@ -364,7 +361,7 @@ describe('Pharmacy Mini-App for Drug and Inventory e2e', function () {
           })
           .withBody({ ...newInventory })
           .expectStatus(201)
-          .expectBodyContains(newInventory.issueUnit)
+          .expectBodyContains(newInventory.issueUnitPrice)
           .stores('inventoryId', 'id');
       });
 

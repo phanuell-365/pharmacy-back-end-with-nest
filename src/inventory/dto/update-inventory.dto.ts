@@ -29,7 +29,7 @@ export class UpdateInventoryDto extends PartialType(CreateInventoryDto) {
   packSizePrice?: number;
 
   @IsOptional()
-  @Transform(({ value }) => value && new Date(value))
+  @Transform(({ value }) => new Date(value))
   @IsDate()
   @MinDate(new Date())
   expirationDate?: Date;

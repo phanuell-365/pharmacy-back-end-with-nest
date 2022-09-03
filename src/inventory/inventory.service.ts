@@ -67,12 +67,24 @@ export class InventoryService {
     inventoryId: string,
     updateInventoryDto: UpdateInventoryDto,
   ) {
-    await this.getDrug(drugId);
+    const drug = await this.getDrug(drugId);
+
+    const existingInventory = await this.inventoryRepository.findOne({
+      where: {
+        DrugId: drug.id,
+      },
+    });
 
     const inventory = await this.inventoryRepository.findByPk(inventoryId);
 
     if (!inventory) {
       throw new ForbiddenException('Inventory not found');
+    }
+
+    if (existingInventory) {
+      if (existingInventory.DrugId !== inventory.DrugId) {
+        throw new ConflictException('Drug has an associated inventory');
+      }
     }
 
     return await inventory.update({ ...updateInventoryDto });

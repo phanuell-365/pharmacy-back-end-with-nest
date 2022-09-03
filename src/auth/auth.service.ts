@@ -18,12 +18,12 @@ export class AuthService {
   async createDefaultAdmin() {
     const user = await this.userRepository.findOne({
       where: {
-        username: 'Administrator Admin',
+        username: 'Administrator',
       },
     });
 
     if (user) {
-      return;
+      return user;
     }
 
     const admin: CreateUserDto = {

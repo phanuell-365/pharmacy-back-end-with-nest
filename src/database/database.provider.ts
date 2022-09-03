@@ -49,7 +49,7 @@ export const databaseProviders = [
             await sequelize.sync({ force: true });
             break;
           case DEVELOPMENT:
-            await sequelize.sync({ force: true });
+            await sequelize.sync();
             break;
           case PRODUCTION:
             await sequelize.sync();
