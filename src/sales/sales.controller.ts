@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { SalesService } from './sales.service';
@@ -29,7 +30,10 @@ export class SalesController {
   }
 
   @Get()
-  findAll() {
+  findAll(@Query('resource') resource: string) {
+    if (resource && resource === 'status') {
+      return this.salesService.findSalesStatus();
+    }
     return this.salesService.findAll();
   }
 

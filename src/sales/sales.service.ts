@@ -2,7 +2,7 @@ import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { CreateSaleDto, UpdateSaleDto } from './dto';
 import { PATIENT_REPOSITORY } from '../patients/constants';
 import { Patient } from '../patients/entities';
-import { SALES_REPOSITORY } from './constants';
+import { SALES_REPOSITORY, SALES_STATUS } from './constants';
 import { Sale } from './entities';
 import { INVENTORY_REPOSITORY } from '../inventory/constants';
 import { Inventory } from '../inventory/entities';
@@ -129,6 +129,10 @@ export class SalesService {
         ],
       },
     });
+  }
+
+  findSalesStatus() {
+    return SALES_STATUS;
   }
 
   async findOne(salesId: string) {
