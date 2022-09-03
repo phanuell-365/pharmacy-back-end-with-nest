@@ -6,7 +6,7 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
-import { Order } from '../../orders/entities/order.entity';
+import { Order } from '../../orders/entities';
 
 @Table({
   tableName: 'Supplies',

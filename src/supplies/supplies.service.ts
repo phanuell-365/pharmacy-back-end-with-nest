@@ -181,12 +181,53 @@ export class SuppliesService {
     const inventory = await this.getInventory(order.DrugId);
 
     if (updateSupplyDto.packSizeQuantity) {
+      const previouslySuppliedQuantity = supply.packSizeQuantity;
+      console.warn(
+        'previous supplied quantity => ',
+        previouslySuppliedQuantity,
+      );
+
       const pendingOrderQuantity = order.orderQuantity;
+
+      console.warn('pending order quantity =>', pendingOrderQuantity);
+
+      const initialOrderQuantity =
+        previouslySuppliedQuantity + pendingOrderQuantity;
+
+      // rollback the order's quantity to it's initial state
+
+      await order.update({
+        orderQuantity: initialOrderQuantity,
+      });
+
+      console.warn('The new order quantity => ', order.orderQuantity);
+
+      // also rollback the inventory's pack size quantity and issue quantity
+      const previousInventoryPackSizeQuantity = inventory.packSizeQuantity;
+
+      const initialInventoryPackSizeQuantity =
+        previousInventoryPackSizeQuantity - previouslySuppliedQuantity;
+
+      const previousInventoryIssueQuantity = inventory.issueQuantity;
+
+      const inventoryIssueUnitPerPackSize = inventory.issueUnitPerPackSize;
+
+      const initialInventoryIssueQuantity =
+        previousInventoryIssueQuantity -
+        previouslySuppliedQuantity * inventoryIssueUnitPerPackSize;
+
+      // update the inventory
+      await inventory.update({
+        packSizeQuantity: initialInventoryPackSizeQuantity,
+        issueQuantity: initialInventoryIssueQuantity,
+      });
 
       const suppliedQuantity = updateSupplyDto.packSizeQuantity;
 
+      const currentOrderQuantity = order.orderQuantity;
+
       const newOrderQuantity = this.getNewOrderQuantity(
-        pendingOrderQuantity,
+        currentOrderQuantity,
         suppliedQuantity,
       );
 
