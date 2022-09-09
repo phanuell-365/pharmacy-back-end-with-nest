@@ -14,6 +14,7 @@ import {
 import { SalesService } from './sales.service';
 import { CreateSaleDto, UpdateSaleDto } from './dto';
 import { JwtGuard } from '../auth/guard';
+import { SalesStatus } from './enums';
 
 @UseGuards(JwtGuard)
 @Controller('sales')
@@ -30,11 +31,24 @@ export class SalesController {
   }
 
   @Get()
-  findAll(@Query('resource') resource: string) {
+  findAll(
+    @Query('resource') resource: string,
+    @Query('status') status: string,
+  ) {
     if (resource && resource === 'status') {
       return this.salesService.findSalesStatus();
     }
-    return this.salesService.findAll();
+
+    switch (status) {
+      case SalesStatus.ISSUED:
+        return this.salesService.findAllIssuedSales();
+      case SalesStatus.PENDING:
+        return this.salesService.findAllPendingSales();
+      case SalesStatus.CANCELLED:
+        return this.salesService.findAllCancelledSales();
+      default:
+        return this.salesService.findAll();
+    }
   }
 
   @Get(':id')

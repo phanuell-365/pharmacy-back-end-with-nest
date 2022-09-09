@@ -131,6 +131,30 @@ export class SalesService {
     });
   }
 
+  async findAllIssuedSales() {
+    return await this.saleRepository.findAll({
+      where: {
+        status: SalesStatus.ISSUED,
+      },
+    });
+  }
+
+  async findAllPendingSales() {
+    return await this.saleRepository.findAll({
+      where: {
+        status: SalesStatus.PENDING,
+      },
+    });
+  }
+
+  async findAllCancelledSales() {
+    return await this.saleRepository.findAll({
+      where: {
+        status: SalesStatus.CANCELLED,
+      },
+    });
+  }
+
   findSalesStatus() {
     return SALES_STATUS;
   }
@@ -167,12 +191,26 @@ export class SalesService {
     // calculate the total price
     const totalPrice = drugPrice * updateSaleDto.issueUnitQuantity;
 
+    // check if the sales status was changed
+    if (
+      updateSaleDto.status &&
+      updateSaleDto.status === SalesStatus.CANCELLED
+    ) {
+      const previouslySoldQuantity = sale.issueUnitQuantity;
+      const currentInventory = inventory.issueQuantity;
+
+      const initialInventoryIssueQuantity =
+        previouslySoldQuantity + currentInventory;
+
+      await inventory.update({
+        issueQuantity: initialInventoryIssueQuantity,
+      });
+    }
     // update the sale
     return await sale.update({
       ...updateSaleDto,
       issueUnitPrice: drugPrice,
       totalPrice,
-      status: SalesStatus.ISSUED,
     });
   }
 
